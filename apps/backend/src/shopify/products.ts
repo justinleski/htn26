@@ -77,6 +77,7 @@ export async function syncShopifyProducts(options: {
   executeGraphql: ShopifyGraphqlExecutor;
   repository: ProductRepository;
   pageSize?: number;
+  afterUpsert?: (products: ProductUpsert[]) => Promise<void>;
 }): Promise<{ synced: number; pages: number }> {
   if (!options.merchantId.trim()) throw new Error("merchantId is required");
   const pageSize = options.pageSize ?? 100;
@@ -110,7 +111,10 @@ export async function syncShopifyProducts(options: {
       sourceUpdatedAt: product.updatedAt,
     }));
 
-    if (products.length > 0) await options.repository.upsertProducts(products);
+    if (products.length > 0) {
+      await options.repository.upsertProducts(products);
+      await options.afterUpsert?.(products);
+    }
     synced += products.length;
     pages += 1;
     cursor = page.pageInfo.hasNextPage ? page.pageInfo.endCursor : null;

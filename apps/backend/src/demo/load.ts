@@ -3,15 +3,20 @@ import { resolve } from "node:path";
 import {
   importAdPerformance,
   importReviews,
+  type AdPerformanceUpsert,
   type DataImportRepository,
   type ImportResult,
+  type ReviewUpsert,
 } from "../import/importer.js";
 
 export async function loadDemoDataset(options: {
   merchantId: string;
   repository: DataImportRepository;
   demoDirectory?: string;
-}): Promise<{ reviews: ImportResult; ads: ImportResult }> {
+}): Promise<{
+  reviews: ImportResult<ReviewUpsert>;
+  ads: ImportResult<AdPerformanceUpsert>;
+}> {
   const directory = options.demoDirectory ?? resolve(process.cwd(), "data", "demo");
   const [reviews, ads] = await Promise.all([
     readFile(resolve(directory, "reviews.json"), "utf8"),

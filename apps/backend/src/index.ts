@@ -6,3 +6,7 @@ export * from "./import/importer.js";
 export * from "./shopify/products.js";
 export * from "./elasticsearch/data-index.js";
 export * from "./demo/load.js";
+export * from "./database/prisma-repositories.js";
+export * from "./dashboard/metrics.js";
+export * from "./pipeline/import-and-index.js";
+export * from "./pipeline/sync-and-index.js";

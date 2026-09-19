@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts"
+    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts"
   },
   "dependencies": {
     "zod": "^4.1.5"

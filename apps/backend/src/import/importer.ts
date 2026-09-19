@@ -18,10 +18,11 @@ export interface DataImportRepository {
   upsertAdPerformance(records: AdPerformanceUpsert[]): Promise<void>;
 }
 
-export interface ImportResult {
+export interface ImportResult<T> {
   processed: number;
   unique: number;
   duplicateRows: number;
+  records: T[];
 }
 
 export class DataImportError extends Error {
@@ -99,7 +100,7 @@ export async function importReviews(options: {
   format: ImportFormat;
   attribution: Attribution;
   repository: DataImportRepository;
-}): Promise<ImportResult> {
+}): Promise<ImportResult<ReviewUpsert>> {
   const rows = parseReviewRows(options.input, options.format);
   const records = uniqueBySourceId(
     rows.map((row) => ({
@@ -114,7 +115,12 @@ export async function importReviews(options: {
     })),
   );
   await options.repository.upsertReviews(records);
-  return { processed: rows.length, unique: records.length, duplicateRows: rows.length - records.length };
+  return {
+    processed: rows.length,
+    unique: records.length,
+    duplicateRows: rows.length - records.length,
+    records,
+  };
 }
 
 export async function importAdPerformance(options: {
@@ -123,7 +129,7 @@ export async function importAdPerformance(options: {
   format: ImportFormat;
   attribution: Attribution;
   repository: DataImportRepository;
-}): Promise<ImportResult> {
+}): Promise<ImportResult<AdPerformanceUpsert>> {
   const rows = parseAdPerformanceRows(options.input, options.format);
   const records = uniqueBySourceId(
     rows.map((row) => ({
@@ -146,5 +152,10 @@ export async function importAdPerformance(options: {
     })),
   );
   await options.repository.upsertAdPerformance(records);
-  return { processed: rows.length, unique: records.length, duplicateRows: rows.length - records.length };
+  return {
+    processed: rows.length,
+    unique: records.length,
+    duplicateRows: rows.length - records.length,
+    records,
+  };
 }
