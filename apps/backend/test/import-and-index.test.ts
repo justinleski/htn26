@@ -10,6 +10,7 @@ import {
   importAdPerformanceAndIndex,
   importReviewsAndIndex,
 } from "../src/pipeline/import-and-index.js";
+import { IndexingAfterPersistenceError } from "../src/pipeline/errors.js";
 
 class MemoryRepository implements DataImportRepository {
   reviews: ReviewUpsert[] = [];
@@ -90,4 +91,42 @@ test("ad import persists and indexes normalized numeric evidence", async () => {
     (elastic.batches[0]?.[0] as { index: { _id: string } }).index._id,
     "merchant-1:ad:ad-1",
   );
+});
+
+test("an indexing failure explicitly reports already-persisted import records", async () => {
+  const repository = new MemoryRepository();
+  const elastic: ElasticDataClient = {
+    async bulk() {
+      return { errors: true, items: [{ index: { error: { reason: "mapping failure" } } }] };
+    },
+    async search<T>(): Promise<ElasticSearchResponse<T>> {
+      return { hits: { hits: [] } };
+    },
+  };
+
+  await assert.rejects(
+    () => importReviewsAndIndex({
+      merchantId: "merchant-1",
+      input: JSON.stringify([
+        {
+          sourceId: "review-1",
+          productId: "product-1",
+          rating: 5,
+          text: "Dry all day",
+          source: "test",
+          reviewedAt: "2026-08-01T00:00:00.000Z",
+        },
+      ]),
+      format: "json",
+      attribution: "imported",
+      repository,
+      elastic,
+    }),
+    (error) =>
+      error instanceof IndexingAfterPersistenceError
+      && error.recordType === "review"
+      && error.persisted === 1
+      && error.message.includes("run merchant reindex"),
+  );
+  assert.equal(repository.reviews.length, 1);
 });

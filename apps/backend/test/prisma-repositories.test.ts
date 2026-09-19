@@ -5,30 +5,35 @@ import type { AdPerformanceUpsert, ReviewUpsert } from "../src/import/importer.j
 import type { ProductUpsert } from "../src/shopify/products.js";
 
 type UpsertArgs = Parameters<PrismaDataClient["product"]["upsert"]>[0];
+type FindManyArgs = Parameters<PrismaDataClient["product"]["findMany"]>[0];
+
+interface ReadState {
+  args?: FindManyArgs;
+  records: Array<Record<string, unknown>>;
+}
 
 function fakeClient() {
   const products: UpsertArgs[] = [];
   const reviews: UpsertArgs[] = [];
   const ads: UpsertArgs[] = [];
   let transactions = 0;
-  let findManyArgs: Parameters<PrismaDataClient["adPerformance"]["findMany"]>[0] | undefined;
-  let findManyRecords: Array<Record<string, unknown>> = [];
-  const delegate = (calls: UpsertArgs[]) => ({
+  const productRead: ReadState = { records: [] };
+  const reviewRead: ReadState = { records: [] };
+  const adRead: ReadState = { records: [] };
+  const delegate = (calls: UpsertArgs[], read: ReadState) => ({
     async upsert(args: UpsertArgs) {
       calls.push(args);
       return args;
     },
+    async findMany(args: FindManyArgs) {
+      read.args = args;
+      return read.records;
+    },
   });
   const client: PrismaDataClient = {
-    product: delegate(products),
-    review: delegate(reviews),
-    adPerformance: {
-      ...delegate(ads),
-      async findMany(args) {
-        findManyArgs = args;
-        return findManyRecords;
-      },
-    },
+    product: delegate(products, productRead),
+    review: delegate(reviews, reviewRead),
+    adPerformance: delegate(ads, adRead),
     async $transaction(operations) {
       transactions += 1;
       return Promise.all(operations);
@@ -40,10 +45,12 @@ function fakeClient() {
     reviews,
     ads,
     transactionCount: () => transactions,
-    findManyArgs: () => findManyArgs,
-    setFindManyRecords: (records: Array<Record<string, unknown>>) => {
-      findManyRecords = records;
-    },
+    productFindManyArgs: () => productRead.args,
+    reviewFindManyArgs: () => reviewRead.args,
+    adFindManyArgs: () => adRead.args,
+    setProductRecords: (records: Array<Record<string, unknown>>) => { productRead.records = records; },
+    setReviewRecords: (records: Array<Record<string, unknown>>) => { reviewRead.records = records; },
+    setAdRecords: (records: Array<Record<string, unknown>>) => { adRead.records = records; },
   };
 }
 
@@ -116,7 +123,7 @@ test("Prisma imports use merchant-scoped source IDs", async () => {
 
 test("Prisma metric reads filter by merchant and normalize database values", async () => {
   const fake = fakeClient();
-  fake.setFindManyRecords([
+  fake.setAdRecords([
     {
       id: "ad-1",
       merchantId: "merchant-1",
@@ -140,7 +147,50 @@ test("Prisma metric reads filter by merchant and normalize database values", asy
   const repository = createPrismaRepositories(fake.client);
   const records = await repository.listAdPerformance({ merchantId: "merchant-1", productId: "product-1" });
 
-  assert.deepEqual(fake.findManyArgs()?.where, { merchantId: "merchant-1", productId: "product-1" });
+  assert.deepEqual(fake.adFindManyArgs()?.where, { merchantId: "merchant-1", productId: "product-1" });
   assert.equal(records[0]?.spend, 25);
   assert.equal(records[0]?.periodStart, "2026-08-01T00:00:00.000Z");
+});
+
+test("Prisma reindex reads are merchant-scoped and normalize products and reviews", async () => {
+  const fake = fakeClient();
+  fake.setProductRecords([
+    {
+      id: "product-1",
+      merchantId: "merchant-1",
+      shopifyId: "gid://shopify/Product/1",
+      title: "Rain Jacket",
+      description: "Waterproof shell",
+      price: { toString: () => "129.00" },
+      currency: "cad",
+      attributes: { handle: "rain-jacket" },
+      createdAt: new Date("2026-08-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-08-02T00:00:00.000Z"),
+    },
+  ]);
+  fake.setReviewRecords([
+    {
+      id: "review-1",
+      merchantId: "merchant-1",
+      sourceId: "source-1",
+      productId: "product-1",
+      rating: 5,
+      text: "Dry all day",
+      source: "test",
+      reviewedAt: new Date("2026-08-01T00:00:00.000Z"),
+      attribution: "imported",
+    },
+  ]);
+  const repository = createPrismaRepositories(fake.client);
+
+  const [products, reviews] = await Promise.all([
+    repository.listProducts({ merchantId: "merchant-1" }),
+    repository.listReviews({ merchantId: "merchant-1" }),
+  ]);
+
+  assert.deepEqual(fake.productFindManyArgs()?.where, { merchantId: "merchant-1" });
+  assert.deepEqual(fake.reviewFindManyArgs()?.where, { merchantId: "merchant-1" });
+  assert.equal(products[0]?.price, "129.00");
+  assert.equal(products[0]?.currency, "CAD");
+  assert.equal(reviews[0]?.reviewedAt, "2026-08-01T00:00:00.000Z");
 });

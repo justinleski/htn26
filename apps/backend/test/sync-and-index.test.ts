@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ElasticDataClient, ElasticSearchResponse } from "../src/elasticsearch/data-index.js";
+import { IndexingAfterPersistenceError } from "../src/pipeline/errors.js";
 import { syncShopifyProductsAndIndex } from "../src/pipeline/sync-and-index.js";
 import type {
   ProductRepository,
@@ -63,4 +64,48 @@ test("Shopify sync persists each page before indexing it", async () => {
     "persist:gid://shopify/Product/2",
     "index:merchant-1:product:gid://shopify/Product/2",
   ]);
+});
+
+test("Shopify sync reports how many products persisted before indexing failed", async () => {
+  const persisted: ProductUpsert[] = [];
+  const repository: ProductRepository = {
+    async upsertProducts(products) {
+      persisted.push(...products);
+    },
+  };
+  const elastic: ElasticDataClient = {
+    async bulk() {
+      return { errors: true, items: [{ index: { error: { reason: "cluster unavailable" } } }] };
+    },
+    async search<T>(): Promise<ElasticSearchResponse<T>> {
+      return { hits: { hits: [] } };
+    },
+  };
+  const executeGraphql: ShopifyGraphqlExecutor = async <T>() => ({
+    products: {
+      nodes: [
+        {
+          id: "gid://shopify/Product/1",
+          title: "Rain Jacket",
+          description: "Weather ready",
+          handle: "rain-jacket",
+          vendor: "Demo",
+          productType: "Outerwear",
+          tags: ["rain"],
+          updatedAt: "2026-09-19T12:00:00.000Z",
+          priceRangeV2: { minVariantPrice: { amount: "129.00", currencyCode: "CAD" } },
+        },
+      ],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    },
+  } as T);
+
+  await assert.rejects(
+    () => syncShopifyProductsAndIndex({ merchantId: "merchant-1", executeGraphql, repository, elastic }),
+    (error) =>
+      error instanceof IndexingAfterPersistenceError
+      && error.recordType === "product"
+      && error.persisted === 1,
+  );
+  assert.equal(persisted.length, 1);
 });

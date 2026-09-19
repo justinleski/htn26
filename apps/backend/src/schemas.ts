@@ -40,25 +40,37 @@ export const ReviewSchema = z.object({
   attribution: AttributionSchema,
 });
 
-export const AdPerformanceSchema = z.object({
-  id,
-  merchantId: id,
-  sourceId: id,
-  productId: id,
-  campaignId: id,
-  messaging: z.string().trim().min(1),
-  channel: z.string().trim().min(1),
-  periodStart: isoDateTime,
-  periodEnd: isoDateTime,
-  impressions: z.number().int().nonnegative(),
-  clicks: z.number().int().nonnegative(),
-  purchases: z.number().int().nonnegative(),
-  spend: z.number().nonnegative(),
-  attributedRevenue: z.number().nonnegative(),
-  currency,
-  source: z.string().trim().min(1),
-  attribution: AttributionSchema,
-});
+export const AdPerformanceSchema = z
+  .object({
+    id,
+    merchantId: id,
+    sourceId: id,
+    productId: id,
+    campaignId: id,
+    messaging: z.string().trim().min(1),
+    channel: z.string().trim().min(1),
+    periodStart: isoDateTime,
+    periodEnd: isoDateTime,
+    impressions: z.number().int().nonnegative(),
+    clicks: z.number().int().nonnegative(),
+    purchases: z.number().int().nonnegative(),
+    spend: z.number().nonnegative(),
+    attributedRevenue: z.number().nonnegative(),
+    currency,
+    source: z.string().trim().min(1),
+    attribution: AttributionSchema,
+  })
+  .superRefine((row, context) => {
+    if (row.periodEnd < row.periodStart) {
+      context.addIssue({ code: "custom", path: ["periodEnd"], message: "periodEnd must be on or after periodStart" });
+    }
+    if (row.clicks > row.impressions) {
+      context.addIssue({ code: "custom", path: ["clicks"], message: "clicks cannot exceed impressions" });
+    }
+    if (row.purchases > row.clicks) {
+      context.addIssue({ code: "custom", path: ["purchases"], message: "purchases cannot exceed clicks" });
+    }
+  });
 
 export const MetricValueSchema = z.object({
   value: z.number().nullable(),

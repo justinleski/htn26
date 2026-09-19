@@ -6,6 +6,7 @@ import {
   type ProductUpsert,
   type ShopifyGraphqlExecutor,
 } from "../shopify/products.js";
+import { IndexingAfterPersistenceError } from "./errors.js";
 
 function productEvidence(record: ProductUpsert): Product {
   return {
@@ -30,14 +31,20 @@ export async function syncShopifyProductsAndIndex(options: {
   pageSize?: number;
 }): Promise<{ synced: number; indexed: number; pages: number }> {
   let indexed = 0;
+  let persisted = 0;
   const result = await syncShopifyProducts({
     merchantId: options.merchantId,
     executeGraphql: options.executeGraphql,
     repository: options.repository,
     ...(options.pageSize ? { pageSize: options.pageSize } : {}),
     afterUpsert: async (products) => {
-      const response = await indexEvidence(options.elastic, products.map(productEvidence));
-      indexed += response.indexed;
+      persisted += products.length;
+      try {
+        const response = await indexEvidence(options.elastic, products.map(productEvidence));
+        indexed += response.indexed;
+      } catch (error) {
+        throw new IndexingAfterPersistenceError("product", persisted, error);
+      }
     },
   });
   return { ...result, indexed };

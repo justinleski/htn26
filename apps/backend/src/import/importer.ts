@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { z } from "zod";
 import type { AdPerformance, Attribution, Review } from "../schemas.js";
-import { parseCsv } from "./csv.js";
+import { CsvParseError, parseCsv } from "./csv.js";
 import {
   AdPerformanceImportRowSchema,
   ReviewImportRowSchema,
@@ -10,6 +10,14 @@ import {
 } from "./schemas.js";
 
 export type ImportFormat = "csv" | "json";
+export interface ImportLimits {
+  maxBytes: number;
+  maxRows: number;
+}
+export const DEFAULT_IMPORT_LIMITS: Readonly<ImportLimits> = Object.freeze({
+  maxBytes: 5 * 1024 * 1024,
+  maxRows: 10_000,
+});
 export type ReviewUpsert = Omit<Review, "id">;
 export type AdPerformanceUpsert = Omit<AdPerformance, "id">;
 
@@ -52,8 +60,27 @@ function jsonRows(input: string, collectionName: "reviews" | "ads"): unknown[] {
   return rows;
 }
 
-function inputRows(input: string, format: ImportFormat, collectionName: "reviews" | "ads"): unknown[] {
-  return format === "csv" ? parseCsv(input) : jsonRows(input, collectionName);
+function inputRows(
+  input: string,
+  format: ImportFormat,
+  collectionName: "reviews" | "ads",
+  limits: ImportLimits,
+): unknown[] {
+  const bytes = Buffer.byteLength(input, "utf8");
+  if (bytes > limits.maxBytes) {
+    throw new DataImportError([`Import is ${bytes} bytes; maximum is ${limits.maxBytes} bytes`]);
+  }
+  let rows: unknown[];
+  try {
+    rows = format === "csv" ? parseCsv(input) : jsonRows(input, collectionName);
+  } catch (error) {
+    if (error instanceof CsvParseError) throw new DataImportError([`Invalid CSV: ${error.message}`]);
+    throw error;
+  }
+  if (rows.length > limits.maxRows) {
+    throw new DataImportError([`Import has ${rows.length} rows; maximum is ${limits.maxRows} rows`]);
+  }
+  return rows;
 }
 
 function validateRows<T>(rows: unknown[], schema: z.ZodType<T>): T[] {
@@ -86,12 +113,20 @@ function uniqueBySourceId<T extends { sourceId: string }>(records: T[]): T[] {
   return [...new Map(records.map((record) => [record.sourceId, record])).values()];
 }
 
-export function parseReviewRows(input: string, format: ImportFormat): ReviewImportRow[] {
-  return validateRows(inputRows(input, format, "reviews"), ReviewImportRowSchema);
+export function parseReviewRows(
+  input: string,
+  format: ImportFormat,
+  limits: ImportLimits = DEFAULT_IMPORT_LIMITS,
+): ReviewImportRow[] {
+  return validateRows(inputRows(input, format, "reviews", limits), ReviewImportRowSchema);
 }
 
-export function parseAdPerformanceRows(input: string, format: ImportFormat): AdPerformanceImportRow[] {
-  return validateRows(inputRows(input, format, "ads"), AdPerformanceImportRowSchema);
+export function parseAdPerformanceRows(
+  input: string,
+  format: ImportFormat,
+  limits: ImportLimits = DEFAULT_IMPORT_LIMITS,
+): AdPerformanceImportRow[] {
+  return validateRows(inputRows(input, format, "ads", limits), AdPerformanceImportRowSchema);
 }
 
 export async function importReviews(options: {
@@ -100,8 +135,9 @@ export async function importReviews(options: {
   format: ImportFormat;
   attribution: Attribution;
   repository: DataImportRepository;
+  limits?: ImportLimits;
 }): Promise<ImportResult<ReviewUpsert>> {
-  const rows = parseReviewRows(options.input, options.format);
+  const rows = parseReviewRows(options.input, options.format, options.limits);
   const records = uniqueBySourceId(
     rows.map((row) => ({
       merchantId: options.merchantId,
@@ -129,8 +165,9 @@ export async function importAdPerformance(options: {
   format: ImportFormat;
   attribution: Attribution;
   repository: DataImportRepository;
+  limits?: ImportLimits;
 }): Promise<ImportResult<AdPerformanceUpsert>> {
-  const rows = parseAdPerformanceRows(options.input, options.format);
+  const rows = parseAdPerformanceRows(options.input, options.format, options.limits);
   const records = uniqueBySourceId(
     rows.map((row) => ({
       merchantId: options.merchantId,

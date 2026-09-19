@@ -2,6 +2,41 @@ import type { AdPerformance, Product, Review } from "../schemas.js";
 
 export const DATA_INDEX = "marketing-copilot-evidence-v1";
 
+export const EVIDENCE_INDEX_MAPPINGS = {
+  dynamic: true,
+  properties: {
+    id: { type: "keyword" },
+    merchantId: { type: "keyword" },
+    recordType: { type: "keyword" },
+    sourceRecordId: { type: "keyword" },
+    productId: { type: "keyword" },
+    shopifyId: { type: "keyword" },
+    campaignId: { type: "keyword" },
+    sourceId: { type: "keyword" },
+    source: { type: "keyword" },
+    attribution: { type: "keyword" },
+    channel: { type: "keyword" },
+    currency: { type: "keyword" },
+    title: { type: "text" },
+    description: { type: "text" },
+    text: { type: "text" },
+    messaging: { type: "text" },
+    reviewedAt: { type: "date" },
+    periodStart: { type: "date" },
+    periodEnd: { type: "date" },
+    createdAt: { type: "date" },
+    updatedAt: { type: "date" },
+    rating: { type: "integer" },
+    price: { type: "double" },
+    impressions: { type: "long" },
+    clicks: { type: "long" },
+    purchases: { type: "long" },
+    spend: { type: "double" },
+    attributedRevenue: { type: "double" },
+    attributes: { type: "object", dynamic: true },
+  },
+} as const;
+
 export interface ElasticBulkResponse {
   errors: boolean;
   items?: Array<Record<string, { error?: { reason?: string } }>>;
@@ -16,6 +51,32 @@ export interface ElasticSearchResponse<T> {
 export interface ElasticDataClient {
   bulk(request: { refresh: "wait_for"; operations: unknown[] }): Promise<ElasticBulkResponse>;
   search<T>(request: Record<string, unknown>): Promise<ElasticSearchResponse<T>>;
+}
+
+export interface ElasticIndexAdminClient {
+  indices: {
+    exists(request: { index: string }): Promise<boolean>;
+    create(request: { index: string; mappings: typeof EVIDENCE_INDEX_MAPPINGS }): Promise<unknown>;
+  };
+}
+
+function isAlreadyExistsError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const serialized = error instanceof Error ? `${error.message} ${JSON.stringify(error)}` : JSON.stringify(error);
+  return serialized.includes("resource_already_exists_exception");
+}
+
+export async function ensureEvidenceIndex(
+  client: ElasticIndexAdminClient,
+): Promise<{ created: boolean }> {
+  if (await client.indices.exists({ index: DATA_INDEX })) return { created: false };
+  try {
+    await client.indices.create({ index: DATA_INDEX, mappings: EVIDENCE_INDEX_MAPPINGS });
+    return { created: true };
+  } catch (error) {
+    if (isAlreadyExistsError(error)) return { created: false };
+    throw error;
+  }
 }
 
 export type EvidenceDocument =

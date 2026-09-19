@@ -1,6 +1,14 @@
 import type { DataImportRepository, AdPerformanceUpsert, ReviewUpsert } from "../import/importer.js";
 import type { AdPerformanceReader } from "../dashboard/metrics.js";
-import { AdPerformanceSchema, type AdPerformance } from "../schemas.js";
+import type { MerchantEvidenceReader } from "../pipeline/reindex.js";
+import {
+  AdPerformanceSchema,
+  ProductSchema,
+  ReviewSchema,
+  type AdPerformance,
+  type Product,
+  type Review,
+} from "../schemas.js";
 import type { ProductRepository, ProductUpsert } from "../shopify/products.js";
 
 type PrismaOperation = Promise<unknown>;
@@ -21,13 +29,17 @@ interface FindManyDelegate {
 }
 
 export interface PrismaDataClient {
-  product: UpsertDelegate;
-  review: UpsertDelegate;
+  product: UpsertDelegate & FindManyDelegate;
+  review: UpsertDelegate & FindManyDelegate;
   adPerformance: UpsertDelegate & FindManyDelegate;
   $transaction(operations: PrismaOperation[]): Promise<unknown>;
 }
 
-export type PrismaRepositories = DataImportRepository & ProductRepository & AdPerformanceReader;
+export type PrismaRepositories =
+  & DataImportRepository
+  & ProductRepository
+  & AdPerformanceReader
+  & MerchantEvidenceReader;
 
 function numericValue(value: unknown, field: string): number {
   if (typeof value === "number") return value;
@@ -44,6 +56,28 @@ function dateValue(value: unknown, field: string): string {
   const date = value instanceof Date ? value : new Date(String(value));
   if (Number.isNaN(date.getTime())) throw new Error(`Invalid date database value for ${field}`);
   return date.toISOString();
+}
+
+function decimalString(value: unknown, field: string): string {
+  const stringValue = typeof value === "string" ? value : String(value);
+  if (!/^\d+(?:\.\d+)?$/.test(stringValue)) throw new Error(`Invalid decimal database value for ${field}`);
+  return stringValue;
+}
+
+function normalizeProduct(record: Record<string, unknown>): Product {
+  return ProductSchema.parse({
+    ...record,
+    price: decimalString(record.price, "price"),
+    createdAt: dateValue(record.createdAt, "createdAt"),
+    updatedAt: dateValue(record.updatedAt, "updatedAt"),
+  });
+}
+
+function normalizeReview(record: Record<string, unknown>): Review {
+  return ReviewSchema.parse({
+    ...record,
+    reviewedAt: dateValue(record.reviewedAt, "reviewedAt"),
+  });
 }
 
 function normalizeAdPerformance(record: Record<string, unknown>): AdPerformance {
@@ -171,6 +205,22 @@ export function createPrismaRepositories(client: PrismaDataClient): PrismaReposi
         orderBy: [{ periodStart: "asc" }, { sourceId: "asc" }],
       });
       return records.map(normalizeAdPerformance);
+    },
+
+    async listProducts(options) {
+      const records = await client.product.findMany({
+        where: { merchantId: options.merchantId },
+        orderBy: [{ shopifyId: "asc" }],
+      });
+      return records.map(normalizeProduct);
+    },
+
+    async listReviews(options) {
+      const records = await client.review.findMany({
+        where: { merchantId: options.merchantId },
+        orderBy: [{ sourceId: "asc" }],
+      });
+      return records.map(normalizeReview);
     },
   };
 }

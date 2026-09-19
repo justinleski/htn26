@@ -31,9 +31,16 @@ export const AdPerformanceImportRowSchema = z
     currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
     source: z.string().trim().min(1),
   })
-  .refine((row) => row.periodEnd >= row.periodStart, {
-    message: "periodEnd must be on or after periodStart",
-    path: ["periodEnd"],
+  .superRefine((row, context) => {
+    if (row.periodEnd < row.periodStart) {
+      context.addIssue({ code: "custom", path: ["periodEnd"], message: "periodEnd must be on or after periodStart" });
+    }
+    if (row.clicks > row.impressions) {
+      context.addIssue({ code: "custom", path: ["clicks"], message: "clicks cannot exceed impressions" });
+    }
+    if (row.purchases > row.clicks) {
+      context.addIssue({ code: "custom", path: ["purchases"], message: "purchases cannot exceed clicks" });
+    }
   });
 
 export type ReviewImportRow = z.infer<typeof ReviewImportRowSchema>;

@@ -1,0 +1,30 @@
+{
+  "waterproof": {
+    "totals": {
+      "impressions": 18000,
+      "clicks": 904,
+      "purchases": 105,
+      "spend": 1080,
+      "attributedRevenue": 8400
+    },
+    "metrics": {
+      "ctr": 0.050222,
+      "conversionRate": 0.11615,
+      "roas": 7.777778
+    }
+  },
+  "style": {
+    "totals": {
+      "impressions": 18000,
+      "clicks": 362,
+      "purchases": 20,
+      "spend": 1080,
+      "attributedRevenue": 1600
+    },
+    "metrics": {
+      "ctr": 0.020111,
+      "conversionRate": 0.055249,
+      "roas": 1.481481
+    }
+  }
+}

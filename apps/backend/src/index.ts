@@ -10,3 +10,5 @@ export * from "./database/prisma-repositories.js";
 export * from "./dashboard/metrics.js";
 export * from "./pipeline/import-and-index.js";
 export * from "./pipeline/sync-and-index.js";
+export * from "./pipeline/reindex.js";
+export * from "./pipeline/errors.js";
