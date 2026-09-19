@@ -1,0 +1,51 @@
+{
+  "name": "@htn26/shopify",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "prebuild": "npm run build -w @htn26/backend",
+    "build": "react-router build",
+    "predev": "npm run build -w @htn26/backend",
+    "dev": "dotenv -e ../backend/.env -- shopify app dev",
+    "dev:local": "dotenv -e ../backend/.env -- react-router dev",
+    "start": "node --import ./instrument.server.mjs ../../node_modules/@react-router/serve/bin.js ./build/server/index.js",
+    "docker-start": "npm run setup && npm run start",
+    "setup": "npm run db:generate && npm run db:migrate",
+    "db:generate": "prisma generate --schema ../backend/prisma/schema.prisma",
+    "db:migrate": "prisma migrate deploy --schema ../backend/prisma/schema.prisma",
+    "pretypecheck": "npm run build -w @htn26/backend",
+    "typecheck": "react-router typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@htn26/backend": "*",
+    "@prisma/client": "^6.19.0",
+    "@react-router/dev": "7.12.0",
+    "@react-router/fs-routes": "7.12.0",
+    "@react-router/node": "7.12.0",
+    "@react-router/serve": "7.12.0",
+    "@sentry/node": "^10.75.0",
+    "@sentry/react": "^10.75.0",
+    "@shopify/app-bridge-react": "^4.2.4",
+    "@shopify/shopify-app-react-router": "^1.1.0",
+    "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
+    "isbot": "^5.1.31",
+    "prisma": "^6.19.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "7.12.0",
+    "vite-tsconfig-paths": "^6.0.4"
+  },
+  "devDependencies": {
+    "@shopify/polaris-types": "1.0.1",
+    "@types/node": "^24.3.1",
+    "@types/react": "^18.3.25",
+    "@types/react-dom": "^18.3.7",
+    "dotenv-cli": "^8.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.4.1"
+  }
+}

@@ -1,3 +1,4 @@
+// Prisma schema — Shopify Session/integrations plus merchant-scoped product data.
 generator client {
   provider = "prisma-client-js"
 }
@@ -5,6 +6,48 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+/// Linked integrations per shop (e.g. Google Analytics OAuth tokens).
+/// Merchants never paste GA API keys — tokens land here after OAuth.
+model MerchantIntegration {
+  id             String    @id @default(cuid())
+  merchantId     String
+  shop           String
+  provider       String
+  status         String    @default("disconnected")
+  /// Opaque provider metadata (property id, account email, scopes, etc.)
+  metadata       Json?
+  /// Encrypted or server-only refresh token — never expose to the client
+  accessToken    String?
+  refreshToken   String?
+  tokenExpiresAt DateTime?
+  connectedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([merchantId, provider])
+  @@index([shop])
 }
 
 model Merchant {

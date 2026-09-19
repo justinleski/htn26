@@ -12,3 +12,8 @@ export * from "./pipeline/import-and-index.js";
 export * from "./pipeline/sync-and-index.js";
 export * from "./pipeline/reindex.js";
 export * from "./pipeline/errors.js";
+export * from "./runtime/environment.js";
+export * from "./runtime/prisma-client.js";
+export * from "./runtime/elastic-client.js";
+export * from "./runtime/platform.js";
+export * from "./monitoring/sentry.js";
