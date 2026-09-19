@@ -14,8 +14,15 @@ const LOCKED_LABEL: Record<TestRound["variedDimension"], string> = {
   hashtags: "Caption + media held constant",
 };
 
-export function CreativeRoundColumn({ round }: { round: TestRound }) {
+export function CreativeRoundColumn({
+  round,
+  onSelect,
+}: {
+  round: TestRound;
+  onSelect: (variantId: string) => void;
+}) {
   const winner = round.variants.find((v) => v.id === round.winnerId);
+  const isOverridden = round.selectedId !== undefined && round.selectedId !== round.winnerId;
 
   return (
     <div className="flex w-72 shrink-0 flex-col gap-3">
@@ -36,6 +43,8 @@ export function CreativeRoundColumn({ round }: { round: TestRound }) {
             dimension={round.variedDimension}
             variant={variant}
             isWinner={variant.id === round.winnerId}
+            isSelected={variant.id === round.selectedId}
+            onSelect={() => onSelect(variant.id)}
           />
         ))}
       </div>
@@ -57,6 +66,12 @@ export function CreativeRoundColumn({ round }: { round: TestRound }) {
             </span>
           )}
         </div>
+      )}
+
+      {isOverridden && (
+        <p className="text-xs text-[var(--color-muted)]">
+          Using your pick instead of the winner in the optimized ad →
+        </p>
       )}
     </div>
   );

@@ -13,7 +13,7 @@ export function WelcomePage() {
     // Simulated OAuth round-trip. Swap for real Shopify + ad account auth later.
     setTimeout(() => {
       connect();
-      navigate("/insights");
+      navigate("/dashboard");
     }, 600);
   }
 

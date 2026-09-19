@@ -51,27 +51,35 @@ export function CreativeVariantCard({
   dimension,
   variant,
   isWinner,
+  isSelected,
+  onSelect,
 }: {
   dimension: CreativeDimension;
   variant: Variant;
   isWinner: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   return (
-    <div
-      className={`rounded-xl border p-3 ${
-        isWinner
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={isSelected}
+      className={`w-full rounded-xl border p-3 text-left transition-colors ${
+        isSelected
           ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10"
-          : "border-white/10 bg-white/[0.02]"
+          : "border-white/10 bg-white/[0.02] hover:border-white/25"
       }`}
     >
-      <div className="mb-2 flex items-center justify-between">
-        {isWinner ? (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-accent)]">
-            ✓ Winner
-          </span>
-        ) : (
-          <span className="text-xs text-[var(--color-muted)]">&nbsp;</span>
-        )}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-2">
+          {isWinner && (
+            <span className="text-xs font-medium text-[var(--color-accent)]">✓ Winner</span>
+          )}
+          {isSelected && !isWinner && (
+            <span className="text-xs font-medium text-[var(--color-fg)]">Selected</span>
+          )}
+        </span>
         <span className="text-xs tabular-nums text-[var(--color-muted)]">
           {(variant.conversionRate * 100).toFixed(1)}% conv.
         </span>
@@ -83,6 +91,6 @@ export function CreativeVariantCard({
         <span>{(variant.ctr * 100).toFixed(1)}% CTR</span>
         <span>{variant.ctaClicks} CTA clicks</span>
       </div>
-    </div>
+    </button>
   );
 }
