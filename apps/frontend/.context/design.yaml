@@ -1,0 +1,78 @@
+app: frontend
+
+stack:
+  language: typescript
+  ui: react
+  styling: tailwind
+  motion: framer-motion
+  bundler: vite
+  router: react-router-dom
+
+structure:
+  root: src
+  allowed_dirs:
+    - pages
+    - layouts
+    - components
+    - hooks
+    - contexts
+    - styles
+  allowed_root_files:
+    - main.tsx
+    - App.tsx
+    - vite-env.d.ts
+  rules:
+    - pages compose layouts and components; avoid raw fetch in pages long-term
+    - layouts own provider trees (contexts)
+    - components are presentational; do not create ambient React context
+    - hooks encapsulate reusable React state and effects and may consume contexts
+    - contexts provide ambient dependency injection (session, theme, merchant); keep values thin
+
+naming:
+  pages: PascalCase + Page suffix
+  layouts: PascalCase + Layout suffix
+  components: PascalCase
+  hooks: useCamelCase
+  contexts: PascalCase + Context or Provider suffix
+
+enforcement:
+  hooks_pattern: "^use[A-Z].*\\.(ts|tsx)$"
+  pages_pattern: ".*Page\\.tsx$"
+  layouts_pattern: ".*Layout\\.tsx$"
+  create_context_only_in: contexts
+
+motion:
+  use_framer_motion: true
+  prefer_layout_and_presence_over_noise: true
+
+layers:
+  contexts:
+    owns:
+      - shared ambient values
+      - Provider components mounted at layout boundaries
+    does_not_own:
+      - side effects
+      - data fetching
+      - animation
+  hooks:
+    owns:
+      - reusable React behavior via useX
+      - reading contexts via useContext
+    does_not_own:
+      - creating new global providers
+  components:
+    owns:
+      - render and local UI state
+    does_not_own:
+      - React Context definitions
+  pages:
+    owns:
+      - route-level composition
+    does_not_own:
+      - deep business logic
+  layouts:
+    owns:
+      - shell chrome
+      - mounting providers
+    does_not_own:
+      - feature-specific UI

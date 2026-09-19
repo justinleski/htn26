@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0f1419;
+  --color-fg: #f2f5f7;
+  --color-muted: #9aa7b2;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+}

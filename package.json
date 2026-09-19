@@ -1,0 +1,17 @@
+{
+  "name": "htn26",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @htn26/frontend",
+    "build": "npm run build -w @htn26/frontend",
+    "check:frontend-structure": "node scripts/check-frontend-structure.mjs",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "yaml": "^2.7.0"
+  }
+}
