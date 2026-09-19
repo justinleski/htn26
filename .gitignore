@@ -9,3 +9,4 @@ build
 coverage
 *.log
 .vite
+graphify-out/

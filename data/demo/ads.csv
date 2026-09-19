@@ -1,0 +1,5 @@
+sourceId,productId,campaignId,messaging,channel,periodStart,periodEnd,impressions,clicks,purchases,spend,attributedRevenue,currency,source
+demo-ad-001,rain-jacket,waterproof-proof-1,"Stay dry through the whole commute",meta,2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z,10000,520,62,600,4960,CAD,demo-ad-import
+demo-ad-002,rain-jacket,waterproof-proof-2,"Sealed pockets for sudden downpours",instagram,2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z,8000,384,43,480,3440,CAD,demo-ad-import
+demo-ad-003,rain-jacket,style-first-1,"A clean silhouette for every forecast",meta,2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z,10000,210,12,600,960,CAD,demo-ad-import
+demo-ad-004,rain-jacket,style-first-2,"Your new favourite city layer",instagram,2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z,8000,152,8,480,640,CAD,demo-ad-import

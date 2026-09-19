@@ -2,5 +2,31 @@
   "name": "@htn26/backend",
   "private": true,
   "version": "0.0.0",
-  "description": "Backend modules placeholder — design.yaml and contracts come later."
+  "description": "Server-side data, import, Shopify sync, metrics, and search modules.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas.d.ts",
+      "import": "./dist/schemas.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "tsx": "^4.20.5",
+    "typescript": "~5.8.2"
+  }
 }

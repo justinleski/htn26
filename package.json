@@ -6,7 +6,9 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @htn26/frontend",
-    "build": "npm run build -w @htn26/frontend",
+    "build": "npm run build -w @htn26/backend && npm run build -w @htn26/frontend",
+    "typecheck": "npm run typecheck -w @htn26/backend",
+    "test": "npm run test -w @htn26/backend",
     "check:frontend-structure": "node scripts/check-frontend-structure.mjs",
     "prepare": "husky"
   },
