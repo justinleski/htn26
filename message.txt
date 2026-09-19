@@ -1,0 +1,748 @@
+## AI Marketing Copilot for Shopify Merchants
+
+A browser-based marketing platform for Shopify merchants that analyzes their store, ads, customer feedback, and performance data, then automatically helps them improve and create new marketing campaigns.
+
+Instead of a merchant manually checking Shopify, Facebook Ads, Google Ads, reviews, and website analytics separately, our tool brings the information together and answers:
+
+* What are my best-performing ads?
+* Why are they performing well?
+* What product features do customers care about most?
+* What captions/hooks should I test next?
+* What type of campaign should I run next?
+* Which messaging is actually converting customers?
+
+### Example
+
+A merchant sells rain jackets.
+
+The system analyzes:
+
+* Shopify product and sales data
+* customer reviews
+* ad performance
+* click-through rates
+* conversions
+* A/B test results
+* which products/pages customers interact with most
+
+It discovers:
+
+> Customers consistently mention waterproofing in positive reviews, and waterproof-focused ads have the highest CTR and conversion rate.
+
+The tool then recommends:
+
+> “Waterproofing appears to be your strongest selling point. Ads focused on waterproof protection convert better than your other messaging.”
+
+It can then generate:
+
+* new ad captions
+* hooks
+* hashtags
+* campaign concepts
+* A/B test variations
+* UGC/content-creator briefs
+* short video scripts
+* landing-page copy
+* email/social copy
+
+For the hackathon, we do **not** need to generate full finished videos. The product can analyze existing marketing and generate the strategy, copy, campaign ideas, and creator briefs.
+
+---
+
+## Core Product Flow
+
+**Store + ads + customer feedback → understand what works → recommend strategy → generate campaign → test variations**
+
+Example:
+
+1. Merchant connects/imports their Shopify store.
+2. We ingest product, sales, and review information.
+3. Merchant imports or connects advertising-performance data.
+4. System analyzes patterns across CTR, conversions, reviews, and products.
+5. Dashboard surfaces the strongest findings.
+6. Merchant clicks **Generate Campaign**.
+7. System creates a campaign based on actual performance insights.
+8. Multiple caption/hook variations are generated for future A/B testing.
+
+---
+
+## Hackathon MVP
+
+### Must Have
+
+* Shopify store/product data
+* sample ad-performance data
+* customer review analysis
+* dashboard showing best-performing ads/products
+* AI-generated insight explaining **why** something performs well
+* generated campaign strategy
+* generated captions/hooks
+* A/B test variants
+
+### Nice to Have
+
+* Google/Facebook ad integrations
+* automated website analysis
+* competitor research
+* creator/UGC briefs
+* brand memory
+* multiple specialized AI agents
+* generated ad images or video concepts
+* campaign performance feedback loop
+
+For a 36-hour hackathon, real Meta/Google Ads integrations may create unnecessary authentication/API overhead. We can use realistic imported or mock campaign data for the demo and focus engineering time on the actual intelligence layer.
+
+---
+
+# Sponsor Tracks + Where They Fit
+
+## 1. Shopify — CORE TRACK
+
+### Sponsor tools
+
+* Shopify API
+* Remix
+* Polaris
+* Shopify store/product/customer data
+
+### How we use it
+
+Shopify provides the core commerce context.
+
+We can retrieve things such as:
+
+* products
+* descriptions
+* pricing
+* inventory
+* sales
+* potentially customer/order information
+* store information
+
+Our system combines this with marketing data to understand **what is actually selling and why**.
+
+Example:
+
+> Product A is the merchant's highest-converting product and reviews repeatedly mention waterproofing.
+
+That insight becomes the basis for the next marketing campaign.
+
+### Why it fits the prize
+
+The Shopify challenge specifically highlights:
+
+* AI-powered merchant tools
+* commerce intelligence
+* workflow automation
+* LLM applications
+* improving merchant operations
+
+Our product hits several of those directly.
+
+**Priority: ESSENTIAL**
+
+---
+
+# 2. OpenAI — AI Reasoning + Campaign Generation
+
+### Sponsor tools
+
+* OpenAI API
+* Codex during development
+
+### How we use it
+
+OpenAI can power the reasoning/generation layer.
+
+For example:
+
+Input:
+
+* Shopify product data
+* reviews
+* campaign metrics
+* A/B results
+
+Model analyzes:
+
+> “Waterproof messaging performs significantly better than style-focused messaging.”
+
+Then generates:
+
+* campaign strategy
+* hooks
+* captions
+* creator briefs
+* A/B variants
+* explanations
+
+Example:
+
+> “Generate three Instagram hooks emphasizing waterproofing for university commuters.”
+
+Could output:
+
+> “Rain in the forecast? Keep moving.”
+
+> “Your laptop shouldn't know it's raining.”
+
+> “Built for the walk between lectures.”
+
+### Codex component
+
+OpenAI's HTN prize also asks teams to show how Codex helped build the product.
+
+We can use Codex for:
+
+* API implementation
+* debugging
+* tests
+* data-processing logic
+* integration work
+
+**Priority: STRONG OPTIONAL**
+
+OpenAI's prize explicitly evaluates both the API-powered experience and meaningful use of Codex during development.
+
+---
+
+# 3. Elastic / Elasticsearch — Marketing Data Search + Insights
+
+### Sponsor tool
+
+* Elasticsearch
+
+### How we use it
+
+Elastic could become the system's **context/search layer**.
+
+We may have:
+
+* thousands of customer reviews
+* product descriptions
+* historical ads
+* captions
+* campaign metrics
+* customer feedback
+* scraped marketing content
+
+Instead of dumping all of that into an LLM, Elasticsearch can retrieve the most relevant information.
+
+Example query:
+
+> “What do customers value most about this jacket?”
+
+Elastic searches:
+
+* reviews
+* previous ad copy
+* product information
+* campaign results
+
+Then the AI receives relevant evidence.
+
+Example insight:
+
+> 38% of high-rated reviews mention waterproofing, while only 7% mention style.
+
+Elastic specifically wants projects that turn messy, unstructured data into actionable information, including agentic systems using hybrid search and retrieval.
+
+### Why this is interesting technically
+
+It makes the system more than:
+
+> send everything to ChatGPT.
+
+Architecture becomes:
+
+**messy marketing data → search/retrieval → relevant evidence → AI reasoning → action**
+
+**Priority: VERY GOOD if backend has time**
+
+---
+
+# 4. Huawei Multi-Agent — Virtual Marketing Team
+
+### Sponsor tool
+
+* JiuwenSwarm / WorkSwarm
+
+Huawei wants multiple specialized agents genuinely collaborating rather than simply chaining prompts.
+
+### How we use it
+
+Instead of one model doing everything:
+
+**Marketing Director Agent**
+
+* coordinates overall campaign
+
+**Analytics Agent**
+
+* analyzes CTR/conversion data
+
+**Customer Insight Agent**
+
+* analyzes reviews and feedback
+
+**Creative Agent**
+
+* generates campaign concepts
+
+**Copywriter Agent**
+
+* generates hooks/captions
+
+**Brand Agent**
+
+* checks whether generated content matches the store's voice
+
+**Critic Agent**
+
+* verifies claims against product data
+
+Example:
+
+Analytics Agent:
+
+> Waterproof-focused ads have the highest conversion rate.
+
+Customer Insight Agent:
+
+> Waterproofing is also frequently praised in reviews.
+
+Creative Agent:
+
+> Let's build the next campaign around commuting in bad weather.
+
+Brand Agent:
+
+> Avoid overly technical language because this merchant's existing brand tone is casual.
+
+Then the Campaign Director combines everything.
+
+### Why it fits
+
+This is genuine task decomposition and agent collaboration around a real-world business problem, which is exactly what Huawei's multi-agent challenge asks for.
+
+**Priority: STRONG if backend wants something technically ambitious**
+
+---
+
+# 5. Backboard — Brand Memory + AI Infrastructure
+
+### Sponsor tool
+
+Backboard provides:
+
+* memory
+* state
+* RAG
+* embeddings
+* tool calling
+* web search
+* access to many models
+
+Their HTN challenge specifically encourages ambitious projects making broad use of this stack.
+
+### How we use it
+
+Backboard could give each merchant a persistent **brand memory**.
+
+The system remembers:
+
+* brand voice
+* previous campaigns
+* successful messaging
+* captions merchant rejected
+* audience preferences
+* high-performing strategies
+
+Example:
+
+Month 1:
+
+Merchant tells system:
+
+> “Don't use corporate language.”
+
+Month 2:
+
+They generate another campaign.
+
+The system remembers that automatically.
+
+It could also remember:
+
+> Humorous captions historically outperform formal captions for this merchant.
+
+Now campaign generation becomes personalized over time.
+
+**Priority: GOOD OPTIONAL**
+
+---
+
+# 6. Browserbase — Automated Website/Competitor Research
+
+### Sponsor tool
+
+* Browserbase
+
+Browserbase has a dedicated “Best Use of Browserbase” prize at HTN.
+
+### How we could use it
+
+Instead of only consuming API data, our agent could browse the merchant's actual website.
+
+For example:
+
+Browser agent visits:
+
+* homepage
+* product pages
+* reviews
+* promotions
+* landing pages
+
+It extracts:
+
+* current messaging
+* product claims
+* pricing
+* CTAs
+* branding
+
+Potentially it could also inspect publicly available competitor pages.
+
+Example:
+
+> “Your homepage emphasizes durability, but customer reviews overwhelmingly praise waterproofing.”
+
+That discrepancy becomes a marketing insight.
+
+### Important distinction
+
+I would use Browserbase for **browser automation/research**, not simply scrape randomly for the sake of the prize.
+
+**Priority: INTERESTING OPTIONAL**
+
+This could give the product a very impressive live demo.
+
+---
+
+# 7. Rox — Marketing Agent Working With Messy Data
+
+### How it fits
+
+Rox specifically wants agents that operate on messy, incomplete, conflicting real-world information and then take meaningful action.
+
+Marketing data is exactly like that.
+
+Imagine:
+
+Facebook Ads:
+
+> Campaign A has highest CTR.
+
+Shopify:
+
+> Campaign B resulted in more purchases.
+
+Reviews:
+
+> Customers love waterproofing.
+
+Website analytics:
+
+> People spend the most time looking at insulation information.
+
+The system needs to reason:
+
+> High clicks do not necessarily mean high conversions.
+
+Then conclude:
+
+> Campaign B is actually stronger from a revenue perspective, despite Campaign A receiving more clicks.
+
+That is a genuine messy-data reasoning problem.
+
+**Priority: STRONG CONCEPTUAL FIT if we make the agent actually take actions/recommend decisions**
+
+---
+
+# 8. Sentry — Observability
+
+### Sponsor tools
+
+Sentry wants teams to use at least two tools beyond basic error tracking, such as:
+
+* tracing
+* logs
+* session replay
+* profiling
+* uptime monitoring
+* AI-agent monitoring
+
+### How we use it
+
+For example:
+
+Merchant clicks:
+
+> Generate Campaign
+
+Sentry trace could show:
+
+**Fetch Shopify data**
+↓
+**Retrieve reviews**
+↓
+**Analytics agent**
+↓
+**Creative agent**
+↓
+**Generate campaign**
+
+If one agent is slow or broken, Sentry helps us identify it.
+
+We could also use:
+
+* Session Replay on frontend
+* tracing for agent workflow
+* logs for failed API calls
+
+### Important
+
+Sentry judges explicitly want observability to actually affect how the team builds/debugs the project, rather than merely installing the SDK.
+
+**Priority: EASY SUPPORTING TRACK if backend wants it**
+
+---
+
+# 9. Cloudflare — Agent Backend / Orchestration
+
+### Sponsor tools
+
+Cloudflare's challenge provides:
+
+* Workers
+* Durable Objects / D1
+* R2
+* Vectorize
+* KV
+* Queues
+* Agents SDK
+
+and specifically wants Cloudflare to serve meaningfully as the agent's backend brain.
+
+### How we use it
+
+Cloudflare Workers could orchestrate:
+
+**Shopify data → analysis agent → review agent → campaign agent → results**
+
+D1/Durable Objects could maintain merchant/campaign state.
+
+Vectorize could store/retrieve brand or campaign context.
+
+### Priority
+
+**OPTIONAL infrastructure choice**, especially if your backend team wants an agent architecture.
+
+---
+
+# 10. Composio — Actually Take Marketing Actions
+
+### Sponsor tool
+
+* Composio integrations
+
+Composio provides agent access to many external applications and emphasizes agents actually taking actions through integrations.
+
+### How it could fit
+
+Eventually our agent could do things like:
+
+* post social content
+* send messages
+* update external systems
+* interact with other marketing platforms
+
+Rather than only saying:
+
+> “You should launch this ad.”
+
+the agent could potentially execute parts of the campaign workflow.
+
+### Hackathon consideration
+
+This could expand scope quickly.
+
+**Priority: STRETCH FEATURE**
+
+---
+
+# Recommended Architecture
+
+Keep the system relatively simple:
+
+**Shopify**
+↓
+product/sales data
+
+**Reviews + ad-performance data**
+↓
+
+**Elastic / database layer**
+↓
+
+**Analytics / AI layer**
+↓
+
+**Marketing agents**
+
+* analytics
+* customer insights
+* creative
+* copywriting
+
+↓
+
+**Campaign output**
+
+* insights
+* captions
+* hooks
+* scripts
+* A/B variants
+
+↓
+
+**Frontend dashboard**
+
+---
+
+# Recommended Sponsor Strategy
+
+Rather than chasing every track:
+
+## Core
+
+### Shopify
+
+The entire product is fundamentally for Shopify merchants.
+
+---
+
+## Pick ONE major AI/agent layer
+
+### Option A — OpenAI
+
+Probably simplest.
+
+Use OpenAI for:
+
+* analysis
+* generation
+* reasoning
+
+### Option B — Huawei Multi-Agent
+
+More technically interesting.
+
+Build actual specialized marketing agents.
+
+### Option C — Backboard
+
+Best if we want memory + AI infrastructure quickly.
+
+---
+
+## Pick ONE data/infrastructure differentiator
+
+### Elastic
+
+Probably the strongest fit.
+
+Use it to retrieve and analyze:
+
+* reviews
+* ads
+* products
+* historical campaigns
+
+OR:
+
+### Browserbase
+
+Use a browser agent to inspect the merchant's site and collect marketing context.
+
+---
+
+## Easy supporting track
+
+### Sentry
+
+Use tracing + agent monitoring / Session Replay while actually debugging the product.
+
+---
+
+# Best Hackathon Combination
+
+If we want the strongest balance between **doable + technically impressive + coherent**, I would aim for:
+
+**Shopify**
+Core commerce data
+
+**OpenAI OR Huawei Multi-Agent**
+Analysis + campaign generation
+
+**Elasticsearch**
+Retrieval/analysis across reviews, campaigns, and marketing data
+
+**Sentry**
+Observability/debugging
+
+Potentially:
+
+**Browserbase**
+Website analysis as the stretch feature
+
+So the architecture becomes:
+
+**Shopify + Ads + Reviews**
+↓
+**Elasticsearch**
+↓
+**AI Marketing Team**
+↓
+**Insights + Generated Campaign**
+↓
+**Merchant Dashboard**
+
+---
+
+## What NOT to build in 36 hours
+
+Avoid trying to implement:
+
+* full Facebook Ads publishing
+* full Google Ads publishing
+* automatic video generation pipeline
+* sophisticated attribution modeling
+* production-ready OAuth for every platform
+* realtime learning from live advertising campaigns
+
+Instead, demonstrate the **intelligence loop** really well:
+
+> Here is the merchant's store.
+
+> Here are their historical ads and reviews.
+
+> Our system identifies what customers care about.
+
+> It discovers which messaging actually converts.
+
+> And now it automatically builds the merchant's next campaign around that evidence.
+
+That is enough to communicate a much larger product vision while still being realistic for the hackathon.
