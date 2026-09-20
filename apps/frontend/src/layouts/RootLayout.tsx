@@ -32,9 +32,9 @@ function Header() {
         <motion.div whileTap={{ scale: 0.96 }} className="inline-block">
           <Link
             to={connected ? "/dashboard" : "/"}
-            className="font-display text-sm font-semibold tracking-tight"
+            className="inline-flex items-center"
           >
-            Marketing Copilot
+            <img src="/adgile-logo.png" alt="Adgile" className="h-8 w-auto" />
           </Link>
         </motion.div>
         {connected && (
