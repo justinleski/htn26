@@ -1,5 +1,6 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { BackButton } from "@/components/BackButton";
 import { CreativeRoundColumn } from "@/components/CreativeRoundColumn";
 import { OptimizedAdCard } from "@/components/OptimizedAdCard";
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
@@ -9,22 +10,22 @@ import { products } from "@/contexts/data/mockData";
 
 const experiment = getMockCreativeExperiment();
 
-function FunnelArrow() {
+function FunnelArrowDown() {
   return (
     <svg
-      width="36"
-      height="36"
+      width="28"
+      height="28"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="mt-24 shrink-0 text-[var(--color-ink-on-dark)]/70"
+      className="shrink-0 text-[var(--color-ink-on-dark)]/40"
       aria-hidden="true"
     >
-      <line x1="3" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
+      <line x1="12" y1="3" x2="12" y2="19" />
+      <polyline points="5 12 12 19 19 12" />
     </svg>
   );
 }
@@ -48,12 +49,7 @@ export function CreativeTestingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <button
-          onClick={() => navigate(-1)}
-          className="text-xs text-[var(--color-ink-on-dark)]/60 hover:text-[var(--color-ink-on-dark)]"
-        >
-          ← Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} />
         <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
           Creative testing{product ? ` — ${product.title}` : ""}
         </h1>
@@ -64,22 +60,27 @@ export function CreativeTestingPage() {
           re-sort a round's table.
         </p>
 
-        <div className="mt-6 flex items-start gap-4 overflow-x-auto pb-4">
-          {rounds.map((round, index) => (
-            <div key={round.round} className="flex items-start gap-4">
-              {index > 0 && <FunnelArrow />}
-              <CreativeRoundColumn
-                round={round}
-                onSelect={(variantId) => selectVariant(round.round, variantId)}
-              />
-            </div>
-          ))}
+        <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
+          <div className="flex min-w-0 flex-col gap-4 lg:max-h-[calc(100vh-14rem)] lg:flex-1 lg:overflow-y-auto lg:pr-2">
+            {rounds.map((round, index) => (
+              <div key={round.round} className="flex flex-col gap-4">
+                {index > 0 && (
+                  <div className="flex justify-center">
+                    <FunnelArrowDown />
+                  </div>
+                )}
+                <CreativeRoundColumn
+                  round={round}
+                  onSelect={(variantId) => selectVariant(round.round, variantId)}
+                />
+              </div>
+            ))}
+          </div>
 
           {finalAd && (
-            <>
-              <FunnelArrow />
+            <div className="lg:sticky lg:top-6 lg:w-80 lg:shrink-0">
               <OptimizedAdCard key={selectionKey} finalAd={finalAd} />
-            </>
+            </div>
           )}
         </div>
       </motion.div>

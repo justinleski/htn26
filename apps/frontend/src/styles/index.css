@@ -1,31 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  /* Friendly redesign — warm cream page, white paper cards, soft rounded
-     accents. --color-ink-on-dark equals --color-ink now (there's no more
-     dark "table" background) — kept as its own token so components that
+  /* Blue / black / white redesign — bright white page over a faint blue
+     grid, near-black ink, one loud blue accent. Sharp edges over soft
+     shadows. --color-ink-on-dark equals --color-ink (there's no more dark
+     "table" background) — kept as its own token so components that
      reference it don't need touching if that ever changes again. */
-  --color-bg: #fbf7f0;
-  --color-bg-alt: #f3ecdf;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f4f6fb;
   --color-paper: #ffffff;
-  --color-paper-dim: #f6f1e7;
-  --color-ink: #38332b;
-  --color-ink-muted: #8f8677;
-  --color-ink-on-dark: #38332b;
+  --color-paper-dim: #eef1f7;
+  --color-ink: #0a0e17;
+  --color-ink-muted: #5b6472;
+  --color-ink-on-dark: #0a0e17;
 
   --color-instagram: #f0705e;
   --color-meta: #4c6ef5;
   --color-google: #f0b84c;
   --color-tiktok: #2bc4b3;
 
-  /* --color-mark: the "this one won" annotation. --color-flag: the "needs
-     attention" annotation. Reserved for those two meanings only. */
-  --color-mark: #e8785f;
-  --color-flag: #e0a83d;
+  /* --color-mark: the "this one won" annotation, the primary action color,
+     and the one accent color in the whole palette. --color-flag: the
+     "needs attention" annotation. */
+  --color-mark: #1d4ed8;
+  --color-mark-hover: #1739ad;
+  --color-mark-tint: rgba(29, 78, 216, 0.08);
+  --color-flag: #dc2626;
 
-  --shadow-paper: 0 6px 20px -6px rgba(56, 51, 43, 0.15);
+  --grid-line: rgba(29, 78, 216, 0.07);
+  --grid-size: 40px;
+  --border-ink: rgba(10, 14, 23, 0.14);
+  --shadow-paper: 0 1px 2px rgba(10, 14, 23, 0.06);
 
-  --font-display: "Quicksand", ui-rounded, "Segoe UI Rounded", sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
   --font-body: "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
@@ -45,13 +52,23 @@ body,
 body {
   margin: 0;
   font-family: var(--font-body);
-  background: var(--color-bg);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-bg);
+}
+
+.grid-paper {
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
 }
 
 .font-display {
   font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .font-mono-num {
@@ -63,5 +80,6 @@ body {
 .paper {
   background-color: var(--color-paper);
   color: var(--color-ink);
+  border: 1px solid var(--border-ink);
   box-shadow: var(--shadow-paper);
 }

@@ -1,5 +1,6 @@
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { BackButton } from "@/components/BackButton";
 import { CampaignVariantCard } from "@/components/CampaignVariantCard";
 import { GeneratingStatus } from "@/components/GeneratingStatus";
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
@@ -41,12 +42,13 @@ export function CampaignPage() {
     return (
       <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-6 text-center">
         <p className="font-display text-lg font-medium">Campaign generation failed.</p>
-        <button
+        <motion.button
           onClick={regenerate}
-          className="mt-4 rounded-full bg-[var(--color-ink)] px-6 py-2.5 text-sm font-semibold text-[var(--color-paper)]"
+          whileTap={{ scale: 0.96 }}
+          className="mt-4 rounded-full bg-[var(--color-mark)] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)]"
         >
           Try again
-        </button>
+        </motion.button>
       </main>
     );
   }
@@ -60,12 +62,7 @@ export function CampaignPage() {
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <button
-              onClick={() => navigate("/insights")}
-              className="text-xs text-[var(--color-ink-on-dark)]/60 hover:text-[var(--color-ink-on-dark)]"
-            >
-              ← Back to insights
-            </button>
+            <BackButton onClick={() => navigate("/insights")} label="Back to insights" />
             <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
               Campaign for {product.title}
             </h1>
@@ -73,12 +70,13 @@ export function CampaignPage() {
               Generated from your top insight. Edit any field before you ship it.
             </p>
           </div>
-          <button
+          <motion.button
             onClick={regenerate}
-            className="self-start rounded-full border border-[var(--color-ink)]/25 px-5 py-2 text-sm font-medium text-[var(--color-ink)]/80 hover:border-[var(--color-ink)]/50 hover:text-[var(--color-ink)] sm:self-auto"
+            whileTap={{ scale: 0.96 }}
+            className="self-start rounded-full border border-[var(--color-mark)]/40 px-5 py-2 text-sm font-semibold text-[var(--color-mark)] transition-colors hover:bg-[var(--color-mark-tint)] sm:self-auto"
           >
             Regenerate
-          </button>
+          </motion.button>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">

@@ -48,10 +48,11 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
 
           return (
             <li key={item.id} className="relative border-b border-[var(--color-ink)]/10 last:border-b-0">
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : item.id)}
                 aria-expanded={isExpanded}
+                whileTap={{ scale: 0.99 }}
                 className="grid w-full grid-cols-[auto_1fr_auto_auto_auto] items-center gap-x-4 px-4 py-3 text-left text-sm hover:bg-[var(--color-ink)]/[0.03]"
               >
                 <span className="text-[var(--color-ink-muted)]">{index + 1}</span>
@@ -77,7 +78,7 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
                     <ChevronIcon />
                   </motion.span>
                 </span>
-              </button>
+              </motion.button>
 
               <AnimatePresence initial={false}>
                 {isExpanded && (

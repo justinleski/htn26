@@ -69,14 +69,16 @@ export function VariantPreviewPanel({
         onClick={(e) => e.stopPropagation()}
         className="paper relative w-full max-w-2xl overflow-hidden rounded-2xl"
       >
-        <button
+        <motion.button
           type="button"
           onClick={onClose}
           aria-label="Close"
+          whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.05 }}
           className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-paper-dim)] text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
         >
           ✕
-        </button>
+        </motion.button>
 
         <div className="grid grid-cols-1 sm:grid-cols-2">
           <div className="flex flex-col gap-3 border-b border-[var(--color-ink)]/10 p-5 sm:border-r sm:border-b-0">
@@ -130,16 +132,17 @@ export function VariantPreviewPanel({
               </p>
             )}
 
-            <button
+            <motion.button
               type="button"
               onClick={() => {
                 onSelect();
                 onClose();
               }}
-              className="mt-auto rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-[var(--color-paper)]"
+              whileTap={{ scale: 0.96 }}
+              className="mt-auto rounded-full bg-[var(--color-mark)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)]"
             >
               {isSelected ? "Keep using this variant" : "Use in optimized ad"}
-            </button>
+            </motion.button>
           </div>
         </div>
       </motion.div>

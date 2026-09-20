@@ -110,7 +110,7 @@ export function DashboardPage() {
 
         <Link
           to="/insights"
-          className="self-start rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)]"
+          className="self-start rounded-full bg-[var(--color-mark)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)]"
         >
           View insights
         </Link>

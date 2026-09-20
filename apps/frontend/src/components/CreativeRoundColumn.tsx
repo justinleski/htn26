@@ -39,18 +39,23 @@ function SortHeaderButton({
 }) {
   const isActive = sort.column === column;
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      whileTap={{ scale: 0.92 }}
       className={`flex items-center justify-end gap-0.5 text-right transition-colors ${
         isActive ? "text-[var(--color-ink)]" : "hover:text-[var(--color-ink)]"
       }`}
     >
       {label}
-      <span className="w-2.5 text-[8px]">
-        {isActive ? (sort.direction === "desc" ? "▼" : "▲") : ""}
-      </span>
-    </button>
+      <motion.span
+        animate={{ rotate: isActive && sort.direction === "asc" ? 180 : 0 }}
+        transition={{ duration: 0.2 }}
+        className="w-2.5 text-[8px]"
+      >
+        {isActive ? "▼" : ""}
+      </motion.span>
+    </motion.button>
   );
 }
 
@@ -81,7 +86,7 @@ export function CreativeRoundColumn({
   }
 
   return (
-    <div className="flex w-96 shrink-0 flex-col gap-3">
+    <div className="flex w-full flex-col gap-3">
       <div>
         <p className="text-xs font-medium tracking-wide text-[var(--color-ink-on-dark)]/70 uppercase">
           Round {round.round}

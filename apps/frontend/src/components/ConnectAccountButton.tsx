@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { PLATFORM_COLOR_VAR } from "@/components/PlatformTag";
 import type { Platform } from "@/contexts/data/types";
 
@@ -26,14 +27,17 @@ export function ConnectAccountButton({
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={handleClick}
       disabled={connected || connecting}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+      whileTap={connected || connecting ? {} : { scale: 0.96 }}
+      animate={connected ? { scale: [1, 1.05, 1] } : {}}
+      transition={{ duration: 0.25 }}
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
         connected
-          ? "border-[var(--color-ink-on-dark)]/40 bg-[var(--color-ink-on-dark)]/10 text-[var(--color-ink-on-dark)]"
-          : "border-[var(--color-ink-on-dark)]/25 text-[var(--color-ink-on-dark)]/80 hover:border-[var(--color-ink-on-dark)]/50 hover:text-[var(--color-ink-on-dark)] disabled:opacity-60"
+          ? "border-[var(--color-mark)]/50 bg-[var(--color-mark-tint)] text-[var(--color-mark)]"
+          : "border-[var(--color-ink)]/30 text-[var(--color-ink)]/80 hover:border-[var(--color-mark)]/50 hover:text-[var(--color-mark)] disabled:opacity-60"
       }`}
     >
       {platform && (
@@ -53,6 +57,6 @@ export function ConnectAccountButton({
       ) : (
         `Connect ${label}`
       )}
-    </button>
+    </motion.button>
   );
 }

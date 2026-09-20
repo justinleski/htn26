@@ -9,7 +9,7 @@ export function OptimizedAdCard({ finalAd }: { finalAd: NonNullable<CreativeExpe
   const [hashtagsText, setHashtagsText] = useState(finalAd.hashtags.join(" "));
 
   return (
-    <div className="paper flex w-72 shrink-0 flex-col gap-4 rounded-2xl border-2 border-[var(--color-mark)]/40 p-4">
+    <div className="paper flex w-full flex-col gap-4 rounded-2xl border-2 border-[var(--color-mark)]/40 p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">

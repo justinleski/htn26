@@ -35,10 +35,11 @@ export function WelcomePage() {
           reviews, and ad performance to surface what's actually driving
           conversions — then draft your next campaign from it.
         </p>
-        <button
+        <motion.button
           onClick={handleConnect}
           disabled={connecting}
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)] transition-opacity disabled:opacity-60"
+          whileTap={{ scale: 0.97 }}
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-mark)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)] disabled:opacity-60"
         >
           {connecting ? (
             <>
@@ -48,7 +49,7 @@ export function WelcomePage() {
           ) : (
             "Connect Shopify store (demo)"
           )}
-        </button>
+        </motion.button>
       </motion.div>
     </main>
   );

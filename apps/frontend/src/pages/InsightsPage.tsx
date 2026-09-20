@@ -55,16 +55,17 @@ export function InsightsPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
+          <motion.button
             onClick={handleGenerateCampaign}
             disabled={loading}
-            className="rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)] transition-opacity disabled:opacity-60"
+            whileTap={{ scale: 0.96 }}
+            className="rounded-full bg-[var(--color-mark)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)] disabled:opacity-60"
           >
             Generate campaign
-          </button>
+          </motion.button>
           <Link
             to="/creative-testing"
-            className="rounded-full border border-[var(--color-ink)]/25 px-6 py-3 text-sm font-medium text-[var(--color-ink)]/80 hover:border-[var(--color-ink)]/50 hover:text-[var(--color-ink)]"
+            className="rounded-full border border-[var(--color-mark)]/40 px-6 py-3 text-sm font-semibold text-[var(--color-mark)] transition-colors hover:bg-[var(--color-mark-tint)]"
           >
             View creative tests
           </Link>

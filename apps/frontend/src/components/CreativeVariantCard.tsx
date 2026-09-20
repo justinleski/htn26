@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import type { CreativeDimension, Variant } from "@/contexts/data/types";
 
@@ -42,8 +44,10 @@ function CheckIcon() {
 
 function SelectionIndicator({ selected }: { selected: boolean }) {
   return (
-    <span
+    <motion.span
       aria-hidden="true"
+      animate={{ scale: selected ? [0.7, 1.1, 1] : 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
         selected
           ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-paper)]"
@@ -51,7 +55,7 @@ function SelectionIndicator({ selected }: { selected: boolean }) {
       }`}
     >
       <CheckIcon />
-    </span>
+    </motion.span>
   );
 }
 
@@ -111,6 +115,8 @@ export function CreativeVariantCard({
   onSelect: () => void;
   onOpenPreview: () => void;
 }) {
+  const [justOpened, setJustOpened] = useState(false);
+
   return (
     <li className="border-b border-[var(--color-ink)]/8 last:border-b-0">
       <div
@@ -138,17 +144,26 @@ export function CreativeVariantCard({
         <span className="font-mono-num pt-0.5 text-right text-xs text-[var(--color-ink-muted)]">
           {variant.ctaClicks}
         </span>
-        <button
+        <motion.button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
+            setJustOpened(true);
+            setTimeout(() => setJustOpened(false), 300);
             onOpenPreview();
           }}
           aria-label="View full details"
-          className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-ink)]/10 hover:text-[var(--color-ink)]"
+          whileTap={{ scale: 0.8 }}
+          animate={{
+            scale: justOpened ? [1, 1.3, 1] : 1,
+            backgroundColor: justOpened ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0)",
+            color: justOpened ? "var(--color-ink)" : "var(--color-ink-muted)",
+          }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-ink)]/10 hover:text-[var(--color-ink)]"
         >
           <EyeIcon />
-        </button>
+        </motion.button>
       </div>
     </li>
   );
