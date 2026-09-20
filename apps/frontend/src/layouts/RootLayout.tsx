@@ -7,11 +7,21 @@ function Header() {
   return (
     <header className="border-b border-white/5">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+<<<<<<< HEAD
         <Link to={connected ? "/insights" : "/"} className="text-sm font-semibold tracking-tight">
+=======
+        <Link to={connected ? "/dashboard" : "/"} className="text-sm font-semibold tracking-tight">
+>>>>>>> origin/main
           Marketing Copilot
         </Link>
         {connected && (
           <nav className="flex items-center gap-5 text-sm text-[var(--color-muted)]">
+<<<<<<< HEAD
+=======
+            <Link to="/dashboard" className="hover:text-[var(--color-fg)]">
+              Dashboard
+            </Link>
+>>>>>>> origin/main
             <Link to="/insights" className="hover:text-[var(--color-fg)]">
               Insights
             </Link>

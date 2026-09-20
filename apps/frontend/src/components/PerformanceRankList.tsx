@@ -10,16 +10,48 @@ function formatCurrency(value: number) {
   return `$${value.toLocaleString()}`;
 }
 
+<<<<<<< HEAD
+=======
+// ADDED: small chevron icon, rotated via a wrapper span based on expand state.
+// Kept as raw SVG (no new dependency) since I don't know if you have an icon
+// library installed yet — swap for lucide-react's ChevronDown if you do.
+function ChevronIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+>>>>>>> origin/main
 export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10">
+<<<<<<< HEAD
       <div className="grid grid-cols-[auto_1fr_auto_auto] gap-x-4 border-b border-white/10 bg-white/5 px-4 py-2.5 text-xs font-medium tracking-wide text-[var(--color-muted)] uppercase sm:px-5">
+=======
+      {/* UPDATED line 18: grid-cols-[auto_1fr_auto_auto] -> added a 5th auto column for the chevron */}
+      <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-x-4 border-b border-white/10 bg-white/5 px-4 py-2.5 text-xs font-medium tracking-wide text-[var(--color-muted)] uppercase sm:px-5">
+>>>>>>> origin/main
         <span>#</span>
         <span>Product / campaign</span>
         <span className="text-right">CTR</span>
         <span className="text-right">Conv. rate</span>
+<<<<<<< HEAD
+=======
+        <span aria-hidden="true" /> {/* ADDED: empty header cell so the chevron column lines up */}
+>>>>>>> origin/main
       </div>
       <ul>
         {items.map((item, index) => {
@@ -27,11 +59,28 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
           const flag = getPlatformSpreadFlag(item);
 
           return (
+<<<<<<< HEAD
             <li key={item.id} className="border-b border-white/5 last:border-b-0">
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : item.id)}
                 className="grid w-full grid-cols-[auto_1fr_auto_auto] items-center gap-x-4 px-4 py-3 text-left text-sm hover:bg-white/[0.03] sm:px-5"
+=======
+            <li
+              key={item.id}
+              // UPDATED line 30: added conditional glow + border tint + transition when this row is expanded
+              className={`border-b border-white/5 last:border-b-0 transition-shadow duration-300 ${
+                isExpanded
+                  ? "shadow-[0_0_28px_-6px_var(--color-accent)] border-[var(--color-accent)]/30"
+                  : ""
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                // UPDATED line 34: grid-cols-[auto_1fr_auto_auto] -> matches the new 5-column header
+                className="grid w-full grid-cols-[auto_1fr_auto_auto_auto] items-center gap-x-4 px-4 py-3 text-left text-sm hover:bg-white/[0.03] sm:px-5"
+>>>>>>> origin/main
               >
                 <span className="text-[var(--color-muted)]">{index + 1}</span>
                 <span className="min-w-0">
@@ -46,6 +95,17 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
                 <span className="text-right tabular-nums font-medium text-[var(--color-accent)]">
                   {formatPct(item.conversionRate)}
                 </span>
+<<<<<<< HEAD
+=======
+                {/* ADDED: chevron cell — rotates 180deg and tints accent color when expanded */}
+                <span
+                  className={`flex justify-end transition-transform duration-200 ${
+                    isExpanded ? "rotate-180 text-[var(--color-accent)]" : "text-[var(--color-muted)]"
+                  }`}
+                >
+                  <ChevronIcon />
+                </span>
+>>>>>>> origin/main
               </button>
 
               {isExpanded && (
@@ -94,4 +154,8 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
       </ul>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

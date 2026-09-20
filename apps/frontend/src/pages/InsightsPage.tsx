@@ -3,14 +3,21 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { InsightCard } from "@/components/InsightCard";
 import { PerformanceRankList } from "@/components/PerformanceRankList";
+<<<<<<< HEAD
 import { StoreSummaryBar } from "@/components/StoreSummaryBar";
+=======
+>>>>>>> origin/main
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
 import { useTopInsight } from "@/hooks/useTopInsight";
 import { adPerformance, products } from "@/contexts/data/mockData";
 import { rankAdPerformance } from "@/contexts/data/metrics";
 
 export function InsightsPage() {
+<<<<<<< HEAD
   const { connected, storeName } = useStoreConnection();
+=======
+  const { connected } = useStoreConnection();
+>>>>>>> origin/main
   const navigate = useNavigate();
   const { insight, loading } = useTopInsight();
 
@@ -19,6 +26,7 @@ export function InsightsPage() {
     [],
   );
 
+<<<<<<< HEAD
   const summary = useMemo(() => {
     // Averaged across each ad's best-performing platform — a simple summary
     // number, not a substitute for the per-platform breakdown in the table.
@@ -35,6 +43,8 @@ export function InsightsPage() {
     };
   }, [rankedItems]);
 
+=======
+>>>>>>> origin/main
   if (!connected) {
     return <Navigate to="/" replace />;
   }
@@ -52,8 +62,11 @@ export function InsightsPage() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="flex flex-col gap-6"
       >
+<<<<<<< HEAD
         <StoreSummaryBar storeName={storeName} {...summary} />
 
+=======
+>>>>>>> origin/main
         {loading || !insight ? (
           <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
         ) : (

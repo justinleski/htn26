@@ -71,6 +71,22 @@ export interface Insight {
   limitations: string;
 }
 
+<<<<<<< HEAD
+=======
+// Dashboard-level findings synthesized across an ad's platformBreakdown —
+// distinct from the single top Insight, and from per-round creative testing.
+export type CrossPlatformFindingKind = "broad-appeal" | "platform-gap";
+
+export interface CrossPlatformFinding {
+  id: string;
+  adId: string;
+  kind: CrossPlatformFindingKind;
+  headline: string;
+  explanation: string;
+  platforms: Platform[];
+}
+
+>>>>>>> origin/main
 export interface RankedPerformanceItem {
   id: string;
   productId: string;
@@ -120,12 +136,25 @@ export interface TestRound {
   winnerId?: string;
   /** Filled in by explainRoundWinner (AI call) after a winner is picked. */
   whyItWon?: string;
+<<<<<<< HEAD
+=======
+  /**
+   * The variant currently feeding the final ad for this round — defaults to
+   * winnerId, but the merchant can override it by clicking any other card
+   * (mix-and-match in the creative studio view).
+   */
+  selectedId?: string;
+>>>>>>> origin/main
 }
 
 export interface CreativeExperiment {
   productId: string;
   rounds: TestRound[];
+<<<<<<< HEAD
   /** Assembled from all three round winners once every round has one. */
+=======
+  /** Assembled from each round's selected variant (winner by default) once every round has one. */
+>>>>>>> origin/main
   finalAd?: {
     caption: string;
     mediaAssetUrl: string;
