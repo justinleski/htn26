@@ -3,6 +3,8 @@ import { explainRoundWinner } from "@/contexts/data/creativeExplanationService";
 import { pickRoundWinner } from "@/contexts/data/creativeTesting";
 import type { CreativeExperiment, TestRound } from "@/contexts/data/types";
 
+const WINNER_OF_THREE_PLACEHOLDER = "/mock/creative/winner-of-three-placeholder.png";
+
 function pickForRound(round: TestRound | undefined, selectedId: string | undefined) {
   if (!round) return null;
   const selected = round.variants.find((v) => v.id === selectedId);
@@ -25,7 +27,8 @@ function buildFinalAd(
 
   return {
     caption: captionVariant.caption,
-    mediaAssetUrl: mediaVariant.mediaAssetUrl,
+    mediaAssetUrl:
+      mediaVariant.mediaType === "video" ? WINNER_OF_THREE_PLACEHOLDER : mediaVariant.mediaAssetUrl,
     mediaType: mediaVariant.mediaType,
     hashtags: hashtagsVariant.hashtags,
   };
