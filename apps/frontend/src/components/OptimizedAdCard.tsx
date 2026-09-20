@@ -15,7 +15,9 @@ export function OptimizedAdCard({ finalAd }: { finalAd: NonNullable<CreativeExpe
           <p className="text-xs font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">
             Optimized ad
           </p>
-          <h3 className="font-display text-base font-semibold">All three winners, assembled</h3>
+          <h3 className="font-display text-base font-semibold text-[var(--color-mark)]">
+            All three winners, assembled
+          </h3>
         </div>
         <CopyButton
           label="Copy all"

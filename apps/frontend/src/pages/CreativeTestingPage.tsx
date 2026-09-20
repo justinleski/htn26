@@ -50,7 +50,7 @@ export function CreativeTestingPage() {
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <BackButton onClick={() => navigate(-1)} />
-        <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight text-[var(--color-mark)] sm:text-3xl">
           Creative testing{product ? ` — ${product.title}` : ""}
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--color-ink-on-dark)]/60">

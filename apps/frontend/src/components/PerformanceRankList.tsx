@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PlatformTag } from "@/components/PlatformTag";
-import { getPlatformSpreadFlag } from "@/contexts/data/metrics";
+import {
+  costPerAcquisition,
+  costPerImpression,
+  getPlatformSpreadFlag,
+} from "@/contexts/data/metrics";
 import type { RankedPerformanceItem } from "@/contexts/data/types";
 
 function formatPct(value: number) {
@@ -10,6 +14,10 @@ function formatPct(value: number) {
 
 function formatCurrency(value: number) {
   return `$${value.toLocaleString()}`;
+}
+
+function formatCurrencyPrecise(value: number) {
+  return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function ChevronIcon() {
@@ -96,11 +104,13 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
                           ⚠ {flag.message}
                         </p>
                       )}
-                      <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 pb-1.5 text-[11px] font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">
+                      <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-4 pb-1.5 text-[11px] font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">
                         <span>Platform</span>
                         <span className="text-right">CTR</span>
                         <span className="text-right">Conv. rate</span>
                         <span className="text-right">Spend</span>
+                        <span className="text-right">Cost/acq.</span>
+                        <span className="text-right">Cost/impr.</span>
                       </div>
                       <ul className="flex flex-col gap-1.5">
                         {item.platformBreakdown.map((stat) => {
@@ -108,7 +118,7 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
                           return (
                             <li
                               key={stat.platform}
-                              className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-4 py-1 text-sm"
+                              className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] items-center gap-x-4 py-1 text-sm"
                             >
                               <PlatformTag
                                 platform={stat.platform}
@@ -122,6 +132,12 @@ export function PerformanceRankList({ items }: { items: RankedPerformanceItem[] 
                               </span>
                               <span className="font-mono-num text-right text-[var(--color-ink-muted)]">
                                 {formatCurrency(stat.spend)}
+                              </span>
+                              <span className="font-mono-num text-right text-[var(--color-ink-muted)]">
+                                {formatCurrency(costPerAcquisition(stat))}
+                              </span>
+                              <span className="font-mono-num text-right text-[var(--color-ink-muted)]">
+                                {formatCurrencyPrecise(costPerImpression(stat))}
                               </span>
                             </li>
                           );

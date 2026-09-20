@@ -63,7 +63,7 @@ export function CampaignPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <BackButton onClick={() => navigate("/insights")} label="Back to insights" />
-            <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight text-[var(--color-mark)] sm:text-3xl">
               Campaign for {product.title}
             </h1>
             <p className="mt-1 text-sm text-[var(--color-ink-on-dark)]/60">

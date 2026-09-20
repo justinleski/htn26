@@ -46,7 +46,7 @@ export function DashboardPage() {
         className="flex flex-col gap-6"
       >
         <div className="flex flex-col gap-3">
-          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--color-mark)] sm:text-3xl">
             Dashboard
           </h1>
           <p className="text-sm text-[var(--color-ink-on-dark)]/60">

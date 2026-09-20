@@ -28,7 +28,7 @@ export function StoreSummaryBar({
         <p className="text-xs tracking-wide text-[var(--color-ink-muted)] uppercase">
           Connected store
         </p>
-        <p className="font-display mt-1 text-lg font-semibold">{storeName}</p>
+        <p className="font-display mt-1 text-lg font-semibold text-[var(--color-mark)]">{storeName}</p>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
         <Stat label="Products" value={String(productCount)} />

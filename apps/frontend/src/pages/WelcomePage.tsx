@@ -10,7 +10,6 @@ export function WelcomePage() {
 
   function handleConnect() {
     setConnecting(true);
-    // Simulated OAuth round-trip. Swap for real Shopify + ad account auth later.
     setTimeout(() => {
       connect();
       navigate("/dashboard");
@@ -47,7 +46,7 @@ export function WelcomePage() {
               Connecting store & ad accounts...
             </>
           ) : (
-            "Connect Shopify store (demo)"
+            "Connect Shopify store"
           )}
         </motion.button>
       </motion.div>

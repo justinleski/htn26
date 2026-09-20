@@ -91,7 +91,7 @@ export function CreativeRoundColumn({
         <p className="text-xs font-medium tracking-wide text-[var(--color-ink-on-dark)]/70 uppercase">
           Round {round.round}
         </p>
-        <h3 className="font-display text-base font-semibold">
+        <h3 className="font-display text-base font-semibold text-[var(--color-mark)]">
           {ROUND_TITLE[round.variedDimension]}
         </h3>
         <p className="mt-0.5 text-xs text-[var(--color-ink-on-dark)]/55">
