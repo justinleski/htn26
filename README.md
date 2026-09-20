@@ -26,7 +26,7 @@ Both services build from the repository root using the workspace lockfile. Confi
 | `api` | `Dockerfile.api` | `npm run docker-start` | `/health` |
 | `web` | `Dockerfile.web` | `node scripts/web-server.mjs` | `/health` |
 
-The public app is **https://adgile.tech**. The web server serves the frontend and proxies `/api`, `/auth`, and `/webhooks` to the existing API service. Browser requests stay on the app origin, allowing host-only, secure Shopify session cookies. The generated Railway web domain redirects to the canonical app domain. `/health` remains available independently for Railway probes.
+The intended primary app URL is **https://adgile.tech**. While its certificate is pending, use **https://web-production-39cfa.up.railway.app** for `SHOPIFY_APP_URL`, `FRONTEND_URL`, and `PUBLIC_APP_URL`, and deploy `shopify.app.railway.toml`. The web server serves the frontend and proxies `/api`, `/auth`, and `/webhooks` to the existing API service. Browser requests stay on the configured app origin, allowing host-only, secure Shopify session cookies. Alternate domains redirect to that origin. `/health` remains available independently for Railway probes.
 
 | Variable | Service | Value / purpose |
 | --- | --- | --- |
