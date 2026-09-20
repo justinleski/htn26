@@ -32,6 +32,7 @@ function buildUserPrompt(input: GenerateCampaignDraftInput): string {
       productId: input.productId,
       allowedSourceIds: [...knownSourceIds(input.evidence)],
       findings: input.findings,
+      evidence: input.evidence,
       outputShape: {
         merchantId: "string",
         productId: "string",
