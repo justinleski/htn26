@@ -35,7 +35,7 @@ Public health JSON: `GET /health` (no Shopify session).
 | `ELASTIC_URL` / `ELASTIC_API_KEY` | Search client health |
 | `SENTRY_DSN` / `VITE_SENTRY_DSN` | Server errors/traces and browser Session Replay |
 | `GOOGLE_CLIENT_ID` / `SECRET` / `REDIRECT_URI` | Future GA Connect (app-level only) |
-| `OPENAI_API_KEY` | Dev 3 AI lane |
+| `BACKBOARD_API_KEY` | Dev 3 AI lane |
 
 Never commit `.env`. Merchants never paste GA API keys — OAuth tokens go on `MerchantIntegration`.
 

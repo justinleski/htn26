@@ -14,7 +14,7 @@ export type AppEnv = {
   elasticApiKey: string | undefined;
   sentryDsn: string | undefined;
   sentryEnvironment: string;
-  openaiApiKey: string | undefined;
+  backboardApiKey: string | undefined;
   googleClientId: string | undefined;
   googleClientSecret: string | undefined;
   googleRedirectUri: string | undefined;
@@ -39,7 +39,7 @@ export function getEnv(): AppEnv {
     sentryDsn: process.env.SENTRY_DSN || undefined,
     sentryEnvironment:
       process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
-    openaiApiKey: process.env.OPENAI_API_KEY || undefined,
+    backboardApiKey: process.env.BACKBOARD_API_KEY || undefined,
     googleClientId: process.env.GOOGLE_CLIENT_ID || undefined,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || undefined,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || undefined,
@@ -65,6 +65,6 @@ export function hasSentry(env = getEnv()): boolean {
   return Boolean(env.sentryDsn);
 }
 
-export function hasOpenAi(env = getEnv()): boolean {
-  return Boolean(env.openaiApiKey);
+export function hasBackboard(env = getEnv()): boolean {
+  return Boolean(env.backboardApiKey);
 }
