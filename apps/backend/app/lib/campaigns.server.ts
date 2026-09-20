@@ -3,11 +3,13 @@ import { ensureMerchant } from "./merchant-data.server";
 import { createPrismaRepositories, type PrismaDataClient } from "../../src/database/prisma-repositories.js";
 import { createPrismaCampaignPersistence, type PrismaCampaignClient } from "../../src/ai/persist.js";
 import { createBackboardModelClient, type ModelClient } from "../../src/ai/model.js";
+import { getEnv } from "./env.server";
 import { generateCampaign } from "../../src/ai/run-generation.js";
 import { GenerationError } from "../../src/ai/errors.js";
 import { traceAppOperation } from "./sentry.server";
 
 export async function generateMerchantCampaign(shop: string, productId: string, model?: ModelClient) {
+  const env = getEnv();
   if (!model && !process.env.BACKBOARD_API_KEY) {
     throw Response.json({ error: "Campaign generation is not configured yet." }, { status: 503 });
   }
@@ -25,7 +27,7 @@ export async function generateMerchantCampaign(shop: string, productId: string, 
   try {
     return await traceAppOperation("campaign.generate", () => generateCampaign({
       merchantId: merchant.id, productId,
-      model: model ?? createBackboardModelClient({ provider: process.env.BACKBOARD_PROVIDER, model: process.env.BACKBOARD_MODEL }),
+      model: model ?? createBackboardModelClient({ apiKey: env.backboardApiKey, gptZeroApiKey: env.gptZeroApiKey, provider: process.env.BACKBOARD_PROVIDER, model: process.env.BACKBOARD_MODEL }),
       persistence: createPrismaCampaignPersistence(prisma as unknown as PrismaCampaignClient),
       retryAttempts: 1,
       // Explicit production retrieval: never fall back to the AI lane's fixtures.

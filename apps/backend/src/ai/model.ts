@@ -134,6 +134,7 @@ export function createScriptedModelClient(replies: Array<unknown | (() => Promis
 
 export interface BackboardModelClientOptions {
   apiKey?: string;
+  gptZeroApiKey?: string;
   baseUrl?: string;
   provider?: string;
   model?: string;
@@ -241,7 +242,9 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
         { attempts, delayMs: options.delayMs ?? 250 },
       );
     };
-  const gptZero = options.gptZero ?? (process.env.GPTZERO_API_KEY ? createGPTZeroClient() : undefined);
+  const gptZero = options.gptZero ?? (options.gptZeroApiKey || process.env.GPTZERO_API_KEY
+    ? createGPTZeroClient({ apiKey: options.gptZeroApiKey })
+    : undefined);
   return {
     completeJson(request) {
       return gptZero
