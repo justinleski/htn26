@@ -43,6 +43,27 @@ test("Backboard sends isolated requests and extracts JSON text", async (context)
   assert.deepEqual(await model.completeJson({ system: "Analyze", user: "Evidence" }), { ok: true });
 });
 
+test("Backboard supervision checks output without rescanning unchanged stage input", async (context) => {
+  const assessments: number[] = [];
+  context.mock.method(globalThis, "fetch", async (_url: string, options: RequestInit) => {
+    const body = JSON.parse(String(options.body));
+    assessments.push(body.content === "Evidence" ? 1 : 0);
+    return Response.json({ content: '{"ok":true}' });
+  });
+  const model = createBackboardModelClient({
+    apiKey: "test-key",
+    gptZero: {
+      async assess(text) {
+        assert.equal(text, '{"ok":true}');
+        return { aiProbability: 0.1 };
+      },
+    },
+  });
+
+  assert.deepEqual(await model.completeJson({ system: "Analyze", user: "Evidence" }), { ok: true });
+  assert.deepEqual(assessments, [1]);
+});
+
 test("Backboard failures are safe and malformed model output is rejected", async (context) => {
   let response = new Response("private provider response", { status: 401 });
   context.mock.method(globalThis, "fetch", async () => response);

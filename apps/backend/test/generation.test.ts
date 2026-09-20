@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { z } from "zod";
 import { generateStructuredText, GenerationError, type TextGenerator } from "../src/generation/text.js";
+import { withGPTZeroSupervision, type GPTZeroAssessment } from "../src/generation/gptzero.js";
 import { assertEvidenceReferences, CampaignDraftSchema } from "../src/generation/contracts.js";
 import { createTextModelClient } from "../src/ai/model.js";
 
@@ -68,6 +69,38 @@ test("in-flight caller cancellation reaches the adapter and settles the request"
       return new Promise(() => {});
     },
   } }), hasCode("cancelled"));
+});
+
+test("GPTZero supervision checks upstream input and revises flagged output", async () => {
+  const assessments: GPTZeroAssessment[] = [
+    { aiProbability: 0.95 },
+    { aiProbability: 0.91 },
+    { aiProbability: 0.1 },
+  ];
+  const instructions: string[] = [];
+  let calls = 0;
+  const generator = withGPTZeroSupervision(
+    { async generateText(request) { instructions.push(request.instructions); calls += 1; return calls === 1 ? "first" : "revised"; } },
+    { async assess() { return assessments.shift() ?? { aiProbability: 0.1 }; } },
+  );
+
+  assert.equal(await generator.generateText({
+    instructions: "Return text.", prompt: "LLM-created evidence", signal: new AbortController().signal,
+  }), "revised");
+  assert.equal(calls, 2);
+  assert.equal(instructions[0]?.includes("AI-generated"), true);
+  assert.equal(instructions[1]?.includes("generic AI phrasing"), true);
+});
+
+test("GPTZero supervision fails closed after the revision budget", async () => {
+  const generator = withGPTZeroSupervision(
+    { async generateText() { return "still generic"; } },
+    { async assess() { return { aiProbability: 1 }; } },
+    { maxRevisions: 1 },
+  );
+  await assert.rejects(generator.generateText({
+    instructions: "Return text.", prompt: "Evidence", signal: new AbortController().signal,
+  }), /GPTZero rejected generated text/);
 });
 
 const draft = {

@@ -28,3 +28,4 @@ export {
   type TextGenerator,
 } from "./generation/text.js";
 export * from "./generation/contracts.js";
+export * from "./generation/gptzero.js";
