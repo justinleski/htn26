@@ -61,22 +61,19 @@ progress:
   infra:
     status: done
     notes: >
-      Deployed without local Docker. Railway CLI login was blocked (interactive OAuth),
-      so services were connected to GitHub justinleski/htn26@feat/platform and built with
-      RAILPACK (Dockerfile.api/web exist locally but were not on the remote branch).
-      api SUCCESS (525de9a4) + web SUCCESS (4b7952c6). GET
-      https://api-production-aa9b.up.railway.app/health → 200 JSON ok=true,
-      shopifyConfigured=true, database.ok=true. Web root → 200. SHOPIFY_API_SECRET and
-      SESSION_SECRET set on api via Railway MCP from local apps/backend/.env (values
-      never written to git/yaml). Partner: shopify app deploy --config shopify.app.toml
-      --allow-updates released htn26-3 (App URL + redirects = api host, embedded=false).
-      Remaining: platform /api/* routes 404 on production because they are still
-      uncommitted locally (deployed commit 2fac49e); commit/push then redeploy (or
-      railway login + railway up) to ship them. Local Docker Desktop WSL still optional.
-      Project helpful-vision (08982ba3-2279-478b-8420-ddeb9e6642cb) env production
-      (c5bf71a5-f74a-4964-8564-794b20614d0c). Domains:
-      https://api-production-aa9b.up.railway.app and
-      https://web-production-39cfa.up.railway.app.
+      Hosted demo live on Railway project helpful-vision
+      (08982ba3-2279-478b-8420-ddeb9e6642cb) env production
+      (c5bf71a5-f74a-4964-8564-794b20614d0c). Services api + web on
+      justinleski/htn26@feat/platform. Latest ship commits: 2b983c4 (API+frontend
+      wiring) then ceb31e4 (stop root railway.toml from forcing Dockerfile.api onto
+      web). Current SUCCESS deploys: api cd9e11e0, web 2c023cd8 (Dockerfile.web).
+      URLs: https://api-production-aa9b.up.railway.app and
+      https://web-production-39cfa.up.railway.app. Secrets SHOPIFY_API_SECRET +
+      SESSION_SECRET set on api (never in git). FRONTEND_URL=web domain;
+      VITE_API_URL=api domain (baked into web build). Partner app htn26-3 released
+      with App URL + redirects = api host, embedded=false. Do not put active
+      [build]/[deploy] in root railway.toml (monorepo). OpenAI still mock;
+      Elastic/Sentry not configured (expected).
     files:
       - Dockerfile.api
       - Dockerfile.web
@@ -98,18 +95,25 @@ progress:
 
   validation:
     status: passing
-    last_run: "2026-09-20T00:03:30Z"
+    last_run: "2026-09-20T00:45:00Z"
     notes: >
-      Local standalone demo path is green. No integration fixes this pass;
-      frontend already treats HTTP 200 from /api/session as connected.
-      Railway/deploy left to infra (not a local validation blocker).
-      POST /api/sync still needs a Shopify offline session (OAuth);
-      Prisma Session count was 0 at smoke time.
+      Hosted smoke green for API + web. Connect opens Shopify OAuth/install;
+      completing merchant login/install is interactive. After install, afterAuth
+      should redirect to FRONTEND_URL/insights?token=…. If Admin opens the app
+      shell instead, visit
+      https://api-production-aa9b.up.railway.app/auth/copilot?shop=htn26-rain-jackets.myshopify.com
+      to mint the token redirect. Prisma Session count was 0 until a production
+      OAuth completes. OpenAI mock; Elastic/Sentry out of scope.
     results:
       - { check: frontend-structure, status: pass }
       - { check: typecheck, status: pass }
       - { check: test, status: pass, notes: "44/44" }
       - { check: frontend-tsc, status: pass, notes: "npx tsc --noEmit -p apps/frontend" }
-      - { check: GET /health, status: pass, notes: "HTTP 200 on react-router :3000 (no Shopify tunnel); shopify+postgres ok; elastic/sentry out of scope" }
-      - { check: GET /api/session (no auth), status: pass, notes: "HTTP 401 Unauthorized" }
-    blockers: []
+      - { check: GET /health (hosted), status: pass, notes: "HTTP 200; shopify+postgres ok" }
+      - { check: GET /api/session (hosted, no auth), status: pass, notes: "HTTP 401 JSON Unauthorized (not 404)" }
+      - { check: GET /auth/login?shop=… (hosted), status: pass, notes: "HTTP 302 to admin.shopify.com oauth/install" }
+      - { check: GET web / (hosted), status: pass, notes: "HTTP 200; VITE_API_URL baked to api host" }
+      - { check: Connect button, status: blocked, notes: "Needs interactive Shopify login/install; may land in Admin Apps if already installed" }
+    blockers:
+      - "Interactive Shopify merchant login/install to create offline session + insights?token redirect"
+      - "OpenAI still mock (out of scope)"
