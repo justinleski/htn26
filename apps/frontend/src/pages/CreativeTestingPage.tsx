@@ -9,6 +9,26 @@ import { products } from "@/contexts/data/mockData";
 
 const experiment = getMockCreativeExperiment();
 
+function FunnelArrow() {
+  return (
+    <svg
+      width="36"
+      height="36"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="mt-24 shrink-0 text-[var(--color-ink-on-dark)]/70"
+      aria-hidden="true"
+    >
+      <line x1="3" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
 export function CreativeTestingPage() {
   const { connected } = useStoreConnection();
   const navigate = useNavigate();
@@ -30,25 +50,24 @@ export function CreativeTestingPage() {
       >
         <button
           onClick={() => navigate(-1)}
-          className="text-xs text-[var(--color-muted)] hover:text-[var(--color-fg)]"
+          className="text-xs text-[var(--color-ink-on-dark)]/60 hover:text-[var(--color-ink-on-dark)]"
         >
           ← Back
         </button>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
           Creative testing{product ? ` — ${product.title}` : ""}
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-[var(--color-muted)]">
+        <p className="mt-1 max-w-2xl text-sm text-[var(--color-ink-on-dark)]/60">
           Each round isolates one creative variable and locks in the winner by
-          conversion rate before testing the next. High CTR alone doesn't win —
-          conversion does. Click any card to swap it into the optimized ad.
+          conversion rate before testing the next. Click a row to see the full
+          post and pick what feeds the optimized ad. Click a column header to
+          re-sort a round's table.
         </p>
 
-        <div className="mt-8 flex items-start gap-4 overflow-x-auto pb-4">
+        <div className="mt-6 flex items-start gap-4 overflow-x-auto pb-4">
           {rounds.map((round, index) => (
             <div key={round.round} className="flex items-start gap-4">
-              {index > 0 && (
-                <div className="mt-24 text-xl text-[var(--color-muted)]">→</div>
-              )}
+              {index > 0 && <FunnelArrow />}
               <CreativeRoundColumn
                 round={round}
                 onSelect={(variantId) => selectVariant(round.round, variantId)}
@@ -58,7 +77,7 @@ export function CreativeTestingPage() {
 
           {finalAd && (
             <>
-              <div className="mt-24 text-xl text-[var(--color-muted)]">→</div>
+              <FunnelArrow />
               <OptimizedAdCard key={selectionKey} finalAd={finalAd} />
             </>
           )}

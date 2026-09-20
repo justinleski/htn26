@@ -1,10 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #0f1419;
-  --color-fg: #f2f5f7;
-  --color-muted: #9aa7b2;
-  --color-accent: #5eead4;
+  /* Friendly redesign — warm cream page, white paper cards, soft rounded
+     accents. --color-ink-on-dark equals --color-ink now (there's no more
+     dark "table" background) — kept as its own token so components that
+     reference it don't need touching if that ever changes again. */
+  --color-bg: #fbf7f0;
+  --color-bg-alt: #f3ecdf;
+  --color-paper: #ffffff;
+  --color-paper-dim: #f6f1e7;
+  --color-ink: #38332b;
+  --color-ink-muted: #8f8677;
+  --color-ink-on-dark: #38332b;
+
+  --color-instagram: #f0705e;
+  --color-meta: #4c6ef5;
+  --color-google: #f0b84c;
+  --color-tiktok: #2bc4b3;
+
+  /* --color-mark: the "this one won" annotation. --color-flag: the "needs
+     attention" annotation. Reserved for those two meanings only. */
+  --color-mark: #e8785f;
+  --color-flag: #e0a83d;
+
+  --shadow-paper: 0 6px 20px -6px rgba(56, 51, 43, 0.15);
+
+  --font-display: "Quicksand", ui-rounded, "Segoe UI Rounded", sans-serif;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
 *,
@@ -21,8 +44,24 @@ body,
 
 body {
   margin: 0;
-  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  font-family: var(--font-body);
   background: var(--color-bg);
-  color: var(--color-fg);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.paper {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-paper);
 }

@@ -46,8 +46,10 @@ export function DashboardPage() {
         className="flex flex-col gap-6"
       >
         <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard</h1>
-          <p className="text-sm text-[var(--color-muted)]">
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            Dashboard
+          </h1>
+          <p className="text-sm text-[var(--color-ink-on-dark)]/60">
             Your store at a glance, plus what's working and what isn't across every
             connected ad platform.
           </p>
@@ -56,11 +58,13 @@ export function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <ConnectAccountButton
             label="Facebook Ads"
+            platform="Facebook"
             connected={connectedAdAccounts.facebookAds}
             onConnect={() => connectAdAccount("facebookAds")}
           />
           <ConnectAccountButton
             label="Google Ads"
+            platform="Google"
             connected={connectedAdAccounts.googleAds}
             onConnect={() => connectAdAccount("googleAds")}
           />
@@ -69,13 +73,13 @@ export function DashboardPage() {
         <StoreSummaryBar storeName={storeName} {...summary} />
 
         <div>
-          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-muted)] uppercase">
+          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-ink-on-dark)]/60 uppercase">
             Performing across platforms
           </h3>
           {loading ? (
-            <div className="h-24 animate-pulse rounded-xl border border-white/10 bg-white/5" />
+            <div className="paper h-24 animate-pulse rounded-xl opacity-50" />
           ) : broadAppeal.length === 0 ? (
-            <p className="text-sm text-[var(--color-muted)]">
+            <p className="text-sm text-[var(--color-ink-on-dark)]/60">
               No ad is running on multiple platforms with consistent results yet.
             </p>
           ) : (
@@ -88,11 +92,11 @@ export function DashboardPage() {
         </div>
 
         <div>
-          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-muted)] uppercase">
+          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-ink-on-dark)]/60 uppercase">
             Needs attention
           </h3>
           {platformGaps.length === 0 ? (
-            <p className="text-sm text-[var(--color-muted)]">
+            <p className="text-sm text-[var(--color-ink-on-dark)]/60">
               No major platform gaps detected right now.
             </p>
           ) : (
@@ -106,9 +110,9 @@ export function DashboardPage() {
 
         <Link
           to="/insights"
-          className="self-start rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black"
+          className="self-start rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)]"
         >
-          See the full why → Insights
+          View insights
         </Link>
       </motion.div>
     </main>

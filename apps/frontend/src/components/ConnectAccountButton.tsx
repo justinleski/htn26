@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { PLATFORM_COLOR_VAR } from "@/components/PlatformTag";
+import type { Platform } from "@/contexts/data/types";
 
 export function ConnectAccountButton({
   label,
+  platform,
   connected,
   onConnect,
 }: {
   label: string;
+  platform?: Platform;
   connected: boolean;
   onConnect: () => void;
 }) {
@@ -26,17 +30,24 @@ export function ConnectAccountButton({
       type="button"
       onClick={handleClick}
       disabled={connected || connecting}
-      className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
         connected
-          ? "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-          : "border-white/15 hover:bg-white/5 disabled:opacity-60"
+          ? "border-[var(--color-ink-on-dark)]/40 bg-[var(--color-ink-on-dark)]/10 text-[var(--color-ink-on-dark)]"
+          : "border-[var(--color-ink-on-dark)]/25 text-[var(--color-ink-on-dark)]/80 hover:border-[var(--color-ink-on-dark)]/50 hover:text-[var(--color-ink-on-dark)] disabled:opacity-60"
       }`}
     >
+      {platform && (
+        <span
+          className="h-1.5 w-1.5 shrink-0 rounded-full"
+          style={{ backgroundColor: PLATFORM_COLOR_VAR[platform] }}
+          aria-hidden="true"
+        />
+      )}
       {connected ? (
         `✓ ${label} connected`
       ) : connecting ? (
         <>
-          <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-[var(--color-fg)]" />
+          <span className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--color-ink-on-dark)]/30 border-t-[var(--color-ink-on-dark)]" />
           Connecting {label}...
         </>
       ) : (

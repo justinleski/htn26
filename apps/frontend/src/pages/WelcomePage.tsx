@@ -24,13 +24,13 @@ export function WelcomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
-        <p className="mb-3 text-sm tracking-wide text-[var(--color-muted)]">
+        <p className="mb-3 text-sm tracking-wide text-[var(--color-ink-on-dark)]/60">
           Marketing Copilot
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
           Know why your best stuff works.
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-[var(--color-muted)]">
+        <p className="mt-4 max-w-xl text-lg text-[var(--color-ink-on-dark)]/70">
           Connect your store and ad accounts. We'll analyze your products,
           reviews, and ad performance to surface what's actually driving
           conversions — then draft your next campaign from it.
@@ -38,11 +38,11 @@ export function WelcomePage() {
         <button
           onClick={handleConnect}
           disabled={connecting}
-          className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black transition-opacity disabled:opacity-60"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)] transition-opacity disabled:opacity-60"
         >
           {connecting ? (
             <>
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--color-paper)]/30 border-t-[var(--color-paper)]" />
               Connecting store & ad accounts...
             </>
           ) : (

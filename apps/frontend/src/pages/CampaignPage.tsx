@@ -40,10 +40,10 @@ export function CampaignPage() {
   if (status === "error") {
     return (
       <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-6 text-center">
-        <p className="text-lg font-medium">Campaign generation failed.</p>
+        <p className="font-display text-lg font-medium">Campaign generation failed.</p>
         <button
           onClick={regenerate}
-          className="mt-4 rounded-lg bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-black"
+          className="mt-4 rounded-full bg-[var(--color-ink)] px-6 py-2.5 text-sm font-semibold text-[var(--color-paper)]"
         >
           Try again
         </button>
@@ -62,20 +62,20 @@ export function CampaignPage() {
           <div>
             <button
               onClick={() => navigate("/insights")}
-              className="text-xs text-[var(--color-muted)] hover:text-[var(--color-fg)]"
+              className="text-xs text-[var(--color-ink-on-dark)]/60 hover:text-[var(--color-ink-on-dark)]"
             >
               ← Back to insights
             </button>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
               Campaign for {product.title}
             </h1>
-            <p className="mt-1 text-sm text-[var(--color-muted)]">
+            <p className="mt-1 text-sm text-[var(--color-ink-on-dark)]/60">
               Generated from your top insight. Edit any field before you ship it.
             </p>
           </div>
           <button
             onClick={regenerate}
-            className="self-start rounded-lg border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 sm:self-auto"
+            className="self-start rounded-full border border-[var(--color-ink)]/25 px-5 py-2 text-sm font-medium text-[var(--color-ink)]/80 hover:border-[var(--color-ink)]/50 hover:text-[var(--color-ink)] sm:self-auto"
           >
             Regenerate
           </button>

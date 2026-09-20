@@ -5,8 +5,9 @@ import { InsightCard } from "@/components/InsightCard";
 import { PerformanceRankList } from "@/components/PerformanceRankList";
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
 import { useTopInsight } from "@/hooks/useTopInsight";
+import { TOP_INSIGHT_THEMES } from "@/contexts/data/insightService";
 import { adPerformance, products } from "@/contexts/data/mockData";
-import { rankAdPerformance } from "@/contexts/data/metrics";
+import { compareMessagingThemes, rankAdPerformance } from "@/contexts/data/metrics";
 
 export function InsightsPage() {
   const { connected } = useStoreConnection();
@@ -15,6 +16,11 @@ export function InsightsPage() {
 
   const rankedItems = useMemo(
     () => rankAdPerformance(products, adPerformance),
+    [],
+  );
+
+  const comparison = useMemo(
+    () => compareMessagingThemes(adPerformance, ...TOP_INSIGHT_THEMES),
     [],
   );
 
@@ -36,13 +42,13 @@ export function InsightsPage() {
         className="flex flex-col gap-6"
       >
         {loading || !insight ? (
-          <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+          <div className="paper h-40 animate-pulse rounded-xl opacity-50" />
         ) : (
-          <InsightCard insight={insight} />
+          <InsightCard insight={insight} comparison={comparison} />
         )}
 
         <div>
-          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-muted)] uppercase">
+          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-ink-on-dark)]/60 uppercase">
             Best-performing products & ads
           </h3>
           <PerformanceRankList items={rankedItems} />
@@ -52,15 +58,15 @@ export function InsightsPage() {
           <button
             onClick={handleGenerateCampaign}
             disabled={loading}
-            className="rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black transition-opacity disabled:opacity-60"
+            className="rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm font-semibold text-[var(--color-paper)] transition-opacity disabled:opacity-60"
           >
-            Generate campaign from this insight
+            Generate campaign
           </button>
           <Link
             to="/creative-testing"
-            className="rounded-lg border border-white/15 px-5 py-3 text-sm font-medium hover:bg-white/5"
+            className="rounded-full border border-[var(--color-ink)]/25 px-6 py-3 text-sm font-medium text-[var(--color-ink)]/80 hover:border-[var(--color-ink)]/50 hover:text-[var(--color-ink)]"
           >
-            See how we found this: creative testing funnel →
+            View creative tests
           </Link>
         </div>
       </motion.div>
