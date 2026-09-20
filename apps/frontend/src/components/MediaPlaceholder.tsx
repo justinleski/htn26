@@ -13,6 +13,19 @@ function hashHue(seed: string): number {
 
 const WINNER_OF_THREE_PLACEHOLDER = "/mock/creative/winner-of-three-placeholder.png";
 
+function PlayOverlay({ size }: { size: "sm" | "lg" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute flex items-center justify-center rounded-full bg-white/90 text-[var(--color-ink)] shadow-sm ${
+        size === "lg" ? "h-14 w-14 text-xl" : "h-5 w-5 text-[9px]"
+      }`}
+    >
+      ▶
+    </span>
+  );
+}
+
 export function MediaPlaceholder({
   variant,
   size = "sm",
@@ -34,6 +47,7 @@ export function MediaPlaceholder({
             alt="Winner of three product thumbnail"
             className="h-full w-full rounded-lg object-contain bg-white"
           />
+          {isVideo ? <PlayOverlay size="lg" /> : null}
         </div>
       );
     }
@@ -45,6 +59,7 @@ export function MediaPlaceholder({
           alt="Winner of three product thumbnail"
           className="h-full w-full rounded-md object-contain bg-white"
         />
+        {isVideo ? <PlayOverlay size="sm" /> : null}
       </div>
     );
   }
@@ -57,9 +72,7 @@ export function MediaPlaceholder({
       >
         {isVideo ? (
           <>
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-xl text-[var(--color-ink)] shadow-sm">
-              ▶
-            </span>
+            <PlayOverlay size="lg" />
             {/* Mocked scrubber — no real video is playing, this is a still placeholder. */}
             <div className="absolute inset-x-4 bottom-3 h-1 rounded-full bg-white/40">
               <div className="h-full w-1/3 rounded-full bg-white/80" />
@@ -80,9 +93,7 @@ export function MediaPlaceholder({
       style={{ background: gradient }}
     >
       {isVideo ? (
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/85 text-[9px] text-[var(--color-ink)]">
-          ▶
-        </span>
+        <PlayOverlay size="sm" />
       ) : (
         <span className="text-base" aria-hidden="true">
           🖼
