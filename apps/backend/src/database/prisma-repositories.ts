@@ -153,7 +153,10 @@ export function createPrismaRepositories(client: PrismaDataClient): PrismaReposi
                 shopifyId: record.shopifyId,
               },
             },
-            create: data,
+            create: {
+              ...(record.id ? { id: record.id } : {}),
+              ...data,
+            },
             update: data,
           });
         }),
