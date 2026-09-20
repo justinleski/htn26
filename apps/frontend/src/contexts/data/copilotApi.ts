@@ -25,7 +25,8 @@ export function getApiBaseUrl(): string {
 export function getLoginUrl(shop: string): string {
   const normalized = shop.trim() || DEFAULT_SHOP;
   const params = new URLSearchParams({ shop: normalized });
-  return `${getApiBaseUrl()}/auth/login?${params.toString()}`;
+  // /auth/copilot runs classic offline OAuth (not embedded authenticate.admin).
+  return `${getApiBaseUrl()}/auth/copilot?${params.toString()}`;
 }
 
 export function readStoredToken(): string | null {

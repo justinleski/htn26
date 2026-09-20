@@ -1,12 +1,18 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { redirectToFrontendInsights } from "../lib/copilot-oauth.server";
-import { authenticate } from "../shopify.server";
+import { redirect } from "react-router";
+
+import { beginStandaloneOAuth } from "../lib/standalone-oauth.server";
 
 /**
- * Shopify Admin / login landing. Mint a copilot token and send the merchant
- * to the Vite product. `/app` Polaris routes stay available as debug-only.
+ * Standalone Connect landing.
+ * Do NOT call authenticate.admin here — that triggers an embedded-app bounce
+ * loop (Admin ↔ app) when Partner config has embedded=false.
  */
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  return redirectToFrontendInsights(session.shop);
+  const url = new URL(request.url);
+  const shop = url.searchParams.get("shop");
+  if (!shop) {
+    throw redirect("/auth/login");
+  }
+  return beginStandaloneOAuth(request, shop);
 };
