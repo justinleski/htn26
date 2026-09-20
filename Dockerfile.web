@@ -1,0 +1,28 @@
+# Build the static frontend and serve same-origin API requests through the web host.
+# Build context: repository root. Runtime upstream is configured with API_UPSTREAM.
+FROM node:20-alpine AS build
+WORKDIR /app
+
+ENV HUSKY=0
+
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json apps/backend/package.json
+COPY apps/frontend/package.json apps/frontend/package.json
+
+RUN npm ci --ignore-scripts --include=dev && npm cache clean --force
+
+COPY apps/frontend apps/frontend
+RUN npm run build -w @htn26/frontend
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=build /app/apps/frontend/dist ./dist
+COPY scripts/web-server.mjs ./scripts/web-server.mjs
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV PUBLIC_APP_URL=https://adgile.tech
+ENV API_UPSTREAM=https://api-production-aa9b.up.railway.app
+USER node
+EXPOSE 3000
+CMD ["node", "scripts/web-server.mjs"]

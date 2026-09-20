@@ -1,18 +1,18 @@
-# Production config. Use shopify.app.dev.toml for local development.
+# Local `shopify app dev` config. Tunnel URLs may be rewritten.
+# Production Partner URLs live in shopify.app.toml and must not be clobbered.
 
 client_id = "6aebdeb1f6abf29f3e80369a0811d47d"
-application_url = "https://adgile.tech"
+application_url = "https://localhost:3458"
 embedded = false
 name = "htn26"
 
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products,read_products"
 optional_scopes = [ ]
 use_legacy_install_flow = true
 
 [auth]
-redirect_urls = [ "https://adgile.tech/api/auth/callback" ]
+redirect_urls = [ "https://localhost:3458/api/auth/callback" ]
 
 [webhooks]
 api_version = "2026-07"
@@ -22,4 +22,4 @@ topics = [ "app/uninstalled" ]
 uri = "/webhooks/app/uninstalled"
 
 [build]
-automatically_update_urls_on_dev = false
+automatically_update_urls_on_dev = true

@@ -8,6 +8,7 @@ export * from "./elasticsearch/data-index.js";
 export * from "./demo/load.js";
 export * from "./database/prisma-repositories.js";
 export * from "./dashboard/metrics.js";
+export * from "./ai/index.js";
 export * from "./dashboard/findings.js";
 export * from "./demo/match.js";
 export * from "./pipeline/import-and-index.js";
@@ -19,5 +20,11 @@ export * from "./runtime/prisma-client.js";
 export * from "./runtime/elastic-client.js";
 export * from "./runtime/platform.js";
 export * from "./monitoring/sentry.js";
-export * from "./generation/text.js";
+export {
+  generateStructuredText,
+  GenerationError as TextGenerationError,
+  type GenerationErrorCode as TextGenerationErrorCode,
+  type TextGenerationRequest,
+  type TextGenerator,
+} from "./generation/text.js";
 export * from "./generation/contracts.js";

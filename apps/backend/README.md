@@ -20,8 +20,8 @@ The backend serves both the built frontend and `/api` on port 3000 by default.
 Set `SHOPIFY_APP_URL` to the public HTTPS origin that forwards to this server.
 In Shopify app configuration, use that same application URL, disable embedded
 mode, and allow the exact redirect URL `<SHOPIFY_APP_URL>/api/auth/callback`.
-`shopify.app.toml` contains localhost defaults; `shopify app dev` can update the
-URLs for a development tunnel. Apply the configuration to your Shopify app before
+`shopify.app.toml` contains the production adgile.tech configuration. Local development
+uses `shopify.app.dev.toml`, which the dev command selects. Apply the configuration to your Shopify app before
 attempting merchant sign-in. Building locally does not register callback URLs.
 
 For Shopify CLI development, first build the frontend, then run

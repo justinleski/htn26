@@ -55,7 +55,7 @@ async function dispatch(request: Request): Promise<Response> {
       graphql: async (query, options) => Response.json(await client.request(query, { variables: options?.variables })),
     }));
   }
-  if (path === "/api/import/demo" && request.method === "POST") return Response.json(await importMerchantDemo(session.shop));
+  if ((path === "/api/import/demo" || path === "/api/import-demo") && request.method === "POST") return Response.json(await importMerchantDemo(session.shop));
   if (path === "/api/import" && request.method === "POST") return Response.json(await importMerchantFile(session.shop, await readJson(request)));
   const merchant = await ensureMerchant(session.shop);
   if (path === "/api/campaigns" && request.method === "GET") {
