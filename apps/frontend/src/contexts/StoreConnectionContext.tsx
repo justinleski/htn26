@@ -18,6 +18,8 @@ import {
   writeStoredToken,
 } from "@/contexts/data/copilotApi";
 
+export type AdAccountKey = "facebookAds" | "googleAds";
+
 interface StoreConnectionValue {
   ready: boolean;
   connected: boolean;
@@ -27,6 +29,8 @@ interface StoreConnectionValue {
   defaultShop: string;
   connect: (shop?: string) => void;
   disconnect: () => void;
+  connectedAdAccounts: Record<AdAccountKey, boolean>;
+  connectAdAccount: (account: AdAccountKey) => void;
 }
 
 const StoreConnectionContext = createContext<StoreConnectionValue | null>(null);
@@ -38,6 +42,10 @@ export function StoreConnectionProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [shop, setShop] = useState(DEFAULT_SHOP);
   const [storeName, setStoreName] = useState("");
+  const [connectedAdAccounts, setConnectedAdAccounts] = useState<Record<AdAccountKey, boolean>>({
+    facebookAds: false,
+    googleAds: false,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +102,10 @@ export function StoreConnectionProvider({ children }: { children: ReactNode }) {
     setStoreName("");
   }, []);
 
+  const connectAdAccount = useCallback((account: AdAccountKey) => {
+    setConnectedAdAccounts((previous) => ({ ...previous, [account]: true }));
+  }, []);
+
   const value = useMemo<StoreConnectionValue>(
     () => ({
       ready,
@@ -104,8 +116,20 @@ export function StoreConnectionProvider({ children }: { children: ReactNode }) {
       defaultShop: DEFAULT_SHOP,
       connect,
       disconnect,
+      connectedAdAccounts,
+      connectAdAccount,
     }),
-    [ready, connected, token, shop, storeName, connect, disconnect],
+    [
+      ready,
+      connected,
+      token,
+      shop,
+      storeName,
+      connect,
+      disconnect,
+      connectedAdAccounts,
+      connectAdAccount,
+    ],
   );
 
   return (

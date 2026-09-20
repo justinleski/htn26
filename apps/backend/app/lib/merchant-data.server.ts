@@ -33,6 +33,7 @@ import {
   type ShopifyGraphqlExecutor,
 } from "../../src/shopify/products.js";
 import { calculateAdMetrics } from "../../src/metrics/index.js";
+import { captureAppError, traceAppOperation } from "./sentry.server";
 
 export type CopilotStatusTone = "ok" | "ready" | "blocked";
 
@@ -164,7 +165,7 @@ async function resolveDemoProduct(merchantId: string) {
   return { id: record.id, title: record.title, source: "demo" } as const;
 }
 
-export async function syncMerchantProducts(
+async function syncMerchantProductsImpl(
   shop: string,
   admin: AdminApiContext,
 ): Promise<MerchantActionResult> {
@@ -184,7 +185,7 @@ export async function syncMerchantProducts(
   return { ok: true, intent: "sync", message, ...(warning ? { warning } : {}) };
 }
 
-export async function importMerchantDemo(shop: string): Promise<MerchantActionResult> {
+async function importMerchantDemoImpl(shop: string): Promise<MerchantActionResult> {
   const merchant = await ensureMerchant(shop);
   const repos = repositories();
   const target = await resolveDemoProduct(merchant.id);
@@ -212,7 +213,7 @@ export async function importMerchantDemo(shop: string): Promise<MerchantActionRe
   };
 }
 
-export async function loadMerchantDashboard(shop: string) {
+async function loadMerchantDashboardImpl(shop: string) {
   const merchant = await ensureMerchant(shop);
   const repos = repositories();
   const [products, ads, reviews, campaignCount] = await Promise.all([
@@ -392,7 +393,25 @@ export async function loadMerchantDashboard(shop: string) {
   };
 }
 
+export function syncMerchantProducts(
+  shop: string,
+  admin: AdminApiContext,
+): Promise<MerchantActionResult> {
+  return traceAppOperation("shopify.product_sync", () =>
+    syncMerchantProductsImpl(shop, admin),
+  );
+}
+
+export function importMerchantDemo(shop: string): Promise<MerchantActionResult> {
+  return traceAppOperation("data.demo_import", () => importMerchantDemoImpl(shop));
+}
+
+export function loadMerchantDashboard(shop: string) {
+  return traceAppOperation("dashboard.load", () => loadMerchantDashboardImpl(shop));
+}
+
 export function actionError(intent: MerchantActionResult["intent"], error: unknown): MerchantActionResult {
+  captureAppError(error, intent);
   return {
     ok: false,
     intent,

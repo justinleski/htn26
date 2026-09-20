@@ -10,6 +10,18 @@ import {
   type ImportResult,
   type ReviewUpsert,
 } from "../import/importer.js";
+import type { ProductRepository, ProductUpsert } from "../shopify/products.js";
+
+interface DemoProductFile {
+  id: string;
+  shopifyId: string;
+  title: string;
+  description: string;
+  price: string;
+  currency: string;
+  attributes: Record<string, unknown>;
+  sourceUpdatedAt: string;
+}
 
 function defaultDemoDirectory(): string {
   const fromModule = fileURLToPath(new URL("../../../../data/demo/", import.meta.url));
@@ -35,9 +47,11 @@ export function applyProductIdMap(input: string, productIdMap?: Record<string, s
 export async function loadDemoDataset(options: {
   merchantId: string;
   repository: DataImportRepository;
+  productRepository?: ProductRepository;
   demoDirectory?: string;
   productIdMap?: Record<string, string>;
 }): Promise<{
+  product?: ProductUpsert;
   reviews: ImportResult<ReviewUpsert>;
   ads: ImportResult<AdPerformanceUpsert>;
 }> {
@@ -47,7 +61,15 @@ export async function loadDemoDataset(options: {
     readFile(resolve(directory, "ads.csv"), "utf8"),
   ]);
 
+  let product: ProductUpsert | undefined;
+  if (options.productRepository) {
+    const parsed = JSON.parse(await readFile(resolve(directory, "product.json"), "utf8")) as DemoProductFile;
+    product = { ...parsed, merchantId: options.merchantId };
+    await options.productRepository.upsertProducts([product]);
+  }
+
   return {
+    ...(product ? { product } : {}),
     reviews: await importReviews({
       merchantId: options.merchantId,
       input: applyProductIdMap(reviews, options.productIdMap),

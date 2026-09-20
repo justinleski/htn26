@@ -11,6 +11,7 @@ npm run setup:backend   # Prisma generate + migrate (needs DATABASE_URL)
 npm run dev:backend     # Shopify React Router app (Partner app + CLI)
 npm run test            # data pipeline tests
 npm run check:backend-health
+npm run build           # Shopify app + secondary Vite shell
 ```
 
 ## Structure
@@ -30,6 +31,11 @@ scripts/             frontend structure checks (pre-commit)
 The hosted product is the **Vite frontend** (`web`). The Shopify React Router app is the **public API** (`api`), not an Admin embed.
 
 See [apps/backend/README.md](apps/backend/README.md) for Partner/env notes.
+
+The Shopify Admin routes also live in **apps/backend**. Copy
+`apps/backend/.env.example` to `apps/backend/.env`; never commit the populated
+file. The backend README covers environment variables, health checks, and
+monitoring details.
 
 ## Hosting (Railway)
 

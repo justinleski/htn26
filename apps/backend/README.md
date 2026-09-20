@@ -1,6 +1,6 @@
 # Backend — Marketing Copilot (Shopify React Router)
 
-Shopify embedded app: auth/session, Postgres (Prisma), loose Zod schemas, Shopify Admin GraphQL helpers, Google Analytics OAuth seams (no live pull yet), Elastic + Sentry stubs.
+Shopify embedded app: auth/session, Postgres (Prisma), Zod-validated imports, Shopify product sync, metric aggregation, merchant-scoped Elastic indexing, Google Analytics OAuth seams, and Sentry monitoring.
 
 ## Run
 
@@ -35,11 +35,15 @@ Public health JSON: `GET /health` (no Shopify session).
 | `SHOPIFY_APP_URL` | Public API origin (Railway `api` URL in production) |
 | `FRONTEND_URL` | Public Vite origin (Railway `web` URL in production) |
 | `ELASTIC_URL` / `ELASTIC_API_KEY` | Search client health |
-| `SENTRY_DSN` | Error monitoring |
+| `SENTRY_DSN` / `VITE_SENTRY_DSN` | Server errors/traces and browser Session Replay |
 | `GOOGLE_CLIENT_ID` / `SECRET` / `REDIRECT_URI` | Future GA Connect (app-level only) |
 | `OPENAI_API_KEY` | Dev 3 AI lane |
 
 Never commit `.env`. Merchants never paste GA API keys — OAuth tokens go on `MerchantIntegration`.
+
+The Health screen can send a deliberate Sentry test error. Product sync,
+demo import, and dashboard loading emit server spans when Sentry is configured;
+browser tracing and privacy-masked Session Replay use `VITE_SENTRY_DSN`.
 
 ## Layout
 

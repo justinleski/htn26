@@ -8,7 +8,7 @@
     "dev": "npm run dev -w @htn26/frontend",
     "dev:frontend": "npm run dev -w @htn26/frontend",
     "dev:backend": "npm run dev -w @htn26/backend",
-    "build": "npm run build -w @htn26/frontend",
+    "build": "npm run build:backend && npm run build:frontend",
     "build:frontend": "npm run build -w @htn26/frontend",
     "build:backend": "npm run build -w @htn26/backend",
     "setup:backend": "npm run setup -w @htn26/backend",

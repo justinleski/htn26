@@ -1,10 +1,10 @@
-import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import type { ActionFunctionArgs, HeadersFunction, LoaderFunctionArgs } from "react-router";
+import { Form, useActionData, useLoaderData, useNavigation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { checkDatabaseHealth } from "../db.server";
 import { checkElasticHealth } from "../lib/elastic.server";
-import { checkSentryHealth } from "../lib/sentry.server";
+import { captureAppError, checkSentryHealth } from "../lib/sentry.server";
 import {
   getEnv,
   hasGoogleOAuthClient,
@@ -31,12 +31,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   };
 };
 
+export const action = async ({ request }: ActionFunctionArgs) => {
+  await authenticate.admin(request);
+  const eventId = captureAppError(
+    new Error("Manual Marketing Copilot Sentry test"),
+    "health.sentry_test",
+  );
+  return eventId
+    ? { ok: true, message: `Sentry test event sent (${eventId}).` }
+    : { ok: false, message: "Sentry is not configured. Set SENTRY_DSN first." };
+};
+
 export default function HealthPage() {
   const data = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
 
   return (
     <s-page heading="Health">
       <s-section heading="Platform">
+        {actionData ? (
+          <s-banner
+            heading={actionData.ok ? "Sentry test complete" : "Sentry test unavailable"}
+            tone={actionData.ok ? "success" : "warning"}
+          >
+            {actionData.message}
+          </s-banner>
+        ) : null}
         <s-unordered-list>
           <s-list-item>
             Shopify credentials:{" "}
@@ -74,6 +95,15 @@ export default function HealthPage() {
             {data.googleOAuthConfigured ? "present" : "not set"}
           </s-list-item>
         </s-unordered-list>
+        <Form method="post">
+          <s-button
+            type="submit"
+            variant="secondary"
+            disabled={navigation.state === "submitting"}
+          >
+            Send Sentry test error
+          </s-button>
+        </Form>
       </s-section>
       <s-paragraph>
         Public JSON probe (no Shopify session):{" "}

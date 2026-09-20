@@ -37,4 +37,23 @@ export function captureTestEvent(message = "htn26 health check"): string | undef
   return Sentry.captureMessage(message, "info");
 }
 
+export function captureAppError(error: unknown, operation: string): string | undefined {
+  if (!initSentry()) return undefined;
+  return Sentry.withScope((scope) => {
+    scope.setTag("operation", operation);
+    return Sentry.captureException(error);
+  });
+}
+
+export async function traceAppOperation<T>(
+  operation: string,
+  callback: () => Promise<T>,
+): Promise<T> {
+  if (!initSentry()) return callback();
+  return Sentry.startSpan(
+    { name: operation, op: "app.workflow" },
+    callback,
+  );
+}
+
 export { Sentry };

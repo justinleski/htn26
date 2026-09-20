@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const id = z.string().trim().min(1);
 const isoDateTime = z.string().datetime({ offset: true });
-const currency = z.string().trim().length(3).transform((value) => value.toUpperCase());
+const currency = z.string().trim().length(3).transform((value: string) => value.toUpperCase());
 const decimal = z.string().regex(/^\d+(?:\.\d+)?$/, "Expected a non-negative decimal string");
 
 export const AttributionSchema = z.enum(["imported", "demo"]);
@@ -60,7 +60,17 @@ export const AdPerformanceSchema = z
     source: z.string().trim().min(1),
     attribution: AttributionSchema,
   })
-  .superRefine((row, context) => {
+  .superRefine(
+    (
+      row: {
+        periodStart: string;
+        periodEnd: string;
+        clicks: number;
+        impressions: number;
+        purchases: number;
+      },
+      context: z.RefinementCtx,
+    ) => {
     if (row.periodEnd < row.periodStart) {
       context.addIssue({ code: "custom", path: ["periodEnd"], message: "periodEnd must be on or after periodStart" });
     }
@@ -70,7 +80,8 @@ export const AdPerformanceSchema = z
     if (row.purchases > row.clicks) {
       context.addIssue({ code: "custom", path: ["purchases"], message: "purchases cannot exceed clicks" });
     }
-  });
+  },
+  );
 
 export const MetricValueSchema = z.object({
   value: z.number().nullable(),
@@ -88,11 +99,56 @@ export const InsightSchema = z.object({
   createdAt: isoDateTime,
 });
 
+export const EvidenceFindingSchema = z.object({
+  summary: z.string().trim().min(1),
+  supportingSourceIds: z.array(id).min(1),
+  observedMetrics: z.record(z.string(), MetricValueSchema),
+  limitations: z.array(z.string().trim().min(1)),
+});
+
+export const AnalyzeEvidenceSchema = z.object({
+  merchantId: id,
+  productId: id,
+  findings: z.array(EvidenceFindingSchema).min(1),
+  limitations: z.array(z.string().trim().min(1)),
+});
+
 export const ABVariantSchema = z.object({
   name: z.string().trim().min(1),
   content: z.string().trim().min(1),
   changedElement: z.string().trim().min(1),
   hypothesis: z.string().trim().min(1),
+});
+
+export const GenerateCampaignSchema = z.object({
+  merchantId: id,
+  productId: id,
+  objective: z.string().trim().min(1),
+  audience: z.string().trim().min(1),
+  strategy: z.string().trim().min(1),
+  hooks: z.array(z.string().trim().min(1)).length(3),
+  captions: z.array(z.string().trim().min(1)).length(3),
+  variants: z.array(ABVariantSchema).length(2),
+  supportingSourceIds: z.array(id).min(1),
+  assumptions: z.array(z.string().trim().min(1)),
+  limitations: z.array(z.string().trim().min(1)),
+});
+
+export const ClaimDecisionSchema = z.object({
+  claim: z.string().trim().min(1),
+  status: z.enum(["supported", "unsupported", "rewritten"]),
+  sourceIds: z.array(id),
+  reason: z.string().trim().min(1),
+  rewrittenClaim: z.string().trim().min(1).optional(),
+});
+
+export const CheckClaimsSchema = z.object({
+  merchantId: id,
+  productId: id,
+  campaign: GenerateCampaignSchema,
+  decisions: z.array(ClaimDecisionSchema).min(1),
+  unsupportedClaims: z.array(ClaimDecisionSchema),
+  rewrittenClaims: z.array(ClaimDecisionSchema),
 });
 
 export const CampaignSchema = z.object({
@@ -127,5 +183,10 @@ export type Product = z.infer<typeof ProductSchema>;
 export type Review = z.infer<typeof ReviewSchema>;
 export type AdPerformance = z.infer<typeof AdPerformanceSchema>;
 export type Insight = z.infer<typeof InsightSchema>;
+export type EvidenceFinding = z.infer<typeof EvidenceFindingSchema>;
+export type AnalyzeEvidence = z.infer<typeof AnalyzeEvidenceSchema>;
+export type GenerateCampaign = z.infer<typeof GenerateCampaignSchema>;
+export type ClaimDecision = z.infer<typeof ClaimDecisionSchema>;
+export type CheckClaims = z.infer<typeof CheckClaimsSchema>;
 export type Campaign = z.infer<typeof CampaignSchema>;
 export type GenerationRun = z.infer<typeof GenerationRunSchema>;

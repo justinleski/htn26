@@ -130,3 +130,22 @@ export function getPlatformSpreadFlag(
     message: `This ${ad.mediaType} performs ${ratio.toFixed(1)}x better on ${best.platform} than ${worst.platform} — consider reallocating spend.`,
   };
 }
+
+const BROAD_APPEAL_MIN_PLATFORMS = 2;
+const BROAD_APPEAL_MAX_SPREAD_RATIO = 1.5;
+
+/**
+ * Ads that ran on 2+ platforms and converted consistently well on all of
+ * them — the opposite signal from getPlatformSpreadFlag. Plain comparison,
+ * no AI involved; the AI layer only writes the sentence describing it.
+ */
+export function getBroadAppealAds(ads: AdPerformance[]): AdPerformance[] {
+  return ads.filter((ad) => {
+    if (ad.platformBreakdown.length < BROAD_APPEAL_MIN_PLATFORMS) return false;
+    const rates = ad.platformBreakdown.map((stat) => stat.conversionRate);
+    const max = Math.max(...rates);
+    const min = Math.min(...rates);
+    if (min === 0) return false;
+    return max / min < BROAD_APPEAL_MAX_SPREAD_RATIO;
+  });
+}
