@@ -156,6 +156,10 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
   const provider = options.provider ?? DEFAULT_BACKBOARD_MODEL.provider;
   const model = options.model ?? DEFAULT_BACKBOARD_MODEL.model;
   const baseUrl = options.baseUrl ?? DEFAULT_BACKBOARD_BASE_URL;
+  const supervisionOptions: GPTZeroSupervisionOptions = {
+    ...options,
+    superviseInput: options.superviseInput ?? false,
+  };
 
   const completeJson = async (request: ModelCompleteOptions): Promise<unknown> => {
       const apiKey = options.apiKey ?? process.env.BACKBOARD_API_KEY;
@@ -241,7 +245,7 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
   return {
     completeJson(request) {
       return gptZero
-        ? superviseModelCompletion(request, completeJson, gptZero, options)
+        ? superviseModelCompletion(request, completeJson, gptZero, supervisionOptions)
         : completeJson(request);
     },
   };
