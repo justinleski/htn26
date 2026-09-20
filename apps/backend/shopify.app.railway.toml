@@ -1,0 +1,25 @@
+# Temporary production URL while adgile.tech certificate issuance is pending.
+
+client_id = "6aebdeb1f6abf29f3e80369a0811d47d"
+application_url = "https://web-production-39cfa.up.railway.app"
+embedded = false
+name = "htn26"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products,read_products"
+optional_scopes = [ ]
+use_legacy_install_flow = true
+
+[auth]
+redirect_urls = [ "https://web-production-39cfa.up.railway.app/api/auth/callback" ]
+
+[webhooks]
+api_version = "2026-07"
+
+# Shop-specific uninstall subscriptions are registered after OAuth because this
+# app uses the legacy installation flow.
+
+[build]
+automatically_update_urls_on_dev = false
+

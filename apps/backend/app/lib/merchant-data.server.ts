@@ -1,10 +1,10 @@
-import type { AdminApiContext } from "@shopify/shopify-app-react-router/server";
+type SyncAdmin = { graphql(query: string, options: { variables: Record<string, unknown> }): Promise<Response> };
 import prisma from "../db.server";
+import { importReviews, importAdPerformance, parseReviewRows, parseAdPerformanceRows, DataImportError } from "../../src/import/importer.js";
 import { getElasticClient } from "./elastic.server";
 import {
   getEnv,
   hasElastic,
-  hasBackboard,
   hasSentry,
   hasGoogleOAuthClient,
 } from "./env.server";
@@ -93,7 +93,7 @@ export async function ensureMerchant(shopDomain: string) {
   });
 }
 
-function createGraphqlExecutor(admin: AdminApiContext): ShopifyGraphqlExecutor {
+function createGraphqlExecutor(admin: SyncAdmin): ShopifyGraphqlExecutor {
   return async (query, variables) => {
     const response = await admin.graphql(query, { variables });
     const json = (await response.json()) as {
@@ -167,7 +167,7 @@ async function resolveDemoProduct(merchantId: string) {
 
 async function syncMerchantProductsImpl(
   shop: string,
-  admin: AdminApiContext,
+  admin: SyncAdmin,
 ): Promise<MerchantActionResult> {
   const merchant = await ensureMerchant(shop);
   const repos = repositories();
@@ -319,10 +319,8 @@ async function loadMerchantDashboardImpl(shop: string) {
     {
       id: "ai",
       label: "Generate campaign",
-      detail: hasBackboard(env)
-        ? "API key present, but analyze -> generate -> claim-check is not wired yet"
-        : "Not wired yet (BACKBOARD_API_KEY empty)",
-      tone: "blocked",
+      detail: process.env.BACKBOARD_API_KEY ? "Backboard configured — analyze, generate, and claim-check" : "Set BACKBOARD_API_KEY to enable generation",
+      tone: process.env.BACKBOARD_API_KEY ? "ready" : "blocked",
     },
     {
       id: "campaigns",
@@ -330,8 +328,8 @@ async function loadMerchantDashboardImpl(shop: string) {
       detail:
         campaignCount > 0
           ? `${campaignCount} saved`
-          : "None saved — generate/save/reopen is not built yet",
-      tone: campaignCount > 0 ? "ok" : "blocked",
+          : "None saved yet — use Campaigns in the standalone app",
+      tone: campaignCount > 0 ? "ok" : "ready",
     },
     {
       id: "sentry",
@@ -376,6 +374,7 @@ async function loadMerchantDashboardImpl(shop: string) {
       })),
     },
     themes: themes.map((theme) => ({
+      comparisonKey: theme.comparisonKey,
       theme: theme.theme,
       label: theme.label,
       adCount: theme.adCount,
@@ -389,13 +388,13 @@ async function loadMerchantDashboardImpl(shop: string) {
     findings,
     status,
     campaignCount,
-    canGenerate: false,
+    canGenerate: Boolean(process.env.BACKBOARD_API_KEY) && (ads.length > 0 || reviews.length > 0),
   };
 }
 
 export function syncMerchantProducts(
   shop: string,
-  admin: AdminApiContext,
+  admin: SyncAdmin,
 ): Promise<MerchantActionResult> {
   return traceAppOperation("shopify.product_sync", () =>
     syncMerchantProductsImpl(shop, admin),
@@ -408,6 +407,30 @@ export function importMerchantDemo(shop: string): Promise<MerchantActionResult> 
 
 export function loadMerchantDashboard(shop: string) {
   return traceAppOperation("dashboard.load", () => loadMerchantDashboardImpl(shop));
+}
+
+export async function importMerchantFile(shop: string, body: Record<string, unknown>) {
+  if ((body.kind !== "reviews" && body.kind !== "ads") ||
+      (body.format !== "json" && body.format !== "csv") || typeof body.input !== "string") {
+    throw Response.json({ error: "Choose reviews or ads and a JSON or CSV file." }, { status: 400 });
+  }
+  try {
+    const merchant = await ensureMerchant(shop);
+    const repos = repositories();
+    const rows = body.kind === "reviews" ? parseReviewRows(body.input, body.format) : parseAdPerformanceRows(body.input, body.format);
+    const products = await repos.listProducts({ merchantId: merchant.id });
+    const allowed = new Set(products.map((product) => product.id));
+    if (rows.some((row) => !allowed.has(row.productId))) {
+      throw Response.json({ error: "Every productId must match a product in your connected store. Use the IDs shown on the dashboard." }, { status: 400 });
+    }
+    const options = { merchantId: merchant.id, input: body.input, format: body.format as "json" | "csv", attribution: "imported" as const, repository: repos };
+    const result = body.kind === "reviews" ? await importReviews(options) : await importAdPerformance(options);
+    const warning = await tryIndex(result.records.map((record) => ({ ...record, id: record.sourceId })));
+    return { ok: true, message: `Imported ${result.unique} ${body.kind}; ${result.duplicateRows} duplicate rows skipped.`, warning };
+  } catch (error) {
+    if (error instanceof DataImportError) throw Response.json({ error: error.message }, { status: 400 });
+    throw error;
+  }
 }
 
 export function actionError(intent: MerchantActionResult["intent"], error: unknown): MerchantActionResult {

@@ -5,7 +5,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-const envPath = resolve(import.meta.dirname, "../.env");
-if (existsSync(envPath) && typeof process.loadEnvFile === "function") {
+const envPath = [resolve(process.cwd(), ".env"), resolve(import.meta.dirname, "../.env")].find(existsSync);
+if (envPath && typeof process.loadEnvFile === "function") {
   process.loadEnvFile(envPath);
 }

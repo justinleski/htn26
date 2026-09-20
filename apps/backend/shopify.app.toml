@@ -1,8 +1,7 @@
-# Production Partner app config. Hosted URLs — do not point `shopify app dev` at this file.
-# Local tunnels use shopify.app.dev.toml (`npm run dev` / `npm run dev:backend`).
+# Production config. Use shopify.app.dev.toml for local development.
 
 client_id = "6aebdeb1f6abf29f3e80369a0811d47d"
-application_url = "https://api-production-aa9b.up.railway.app"
+application_url = "https://adgile.tech"
 embedded = false
 name = "htn26"
 
@@ -10,17 +9,16 @@ name = "htn26"
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products,read_products"
 optional_scopes = [ ]
-use_legacy_install_flow = false
+use_legacy_install_flow = true
 
 [auth]
-redirect_urls = [
-  "https://api-production-aa9b.up.railway.app/auth/callback",
-  "https://api-production-aa9b.up.railway.app/auth/shopify/callback",
-  "https://api-production-aa9b.up.railway.app/api/auth/callback",
-]
+redirect_urls = [ "https://adgile.tech/api/auth/callback" ]
 
 [webhooks]
 api_version = "2026-07"
+
+# Shop-specific uninstall subscriptions are registered after OAuth because this
+# app uses the legacy installation flow.
 
 [build]
 automatically_update_urls_on_dev = false

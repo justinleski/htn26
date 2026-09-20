@@ -20,7 +20,7 @@ function describeAttribute(dimension: CreativeDimension, winner: Variant): strin
  * specific attribute (theme/mediaType/hashtag set) vs. the other variants.
  *
  * TODO(real AI): Replace the body below with a server-side call to the
- * OpenAI/Gemini API. Send `variants` and `winnerId` (plus `variedDimension`
+ * provider-neutral text generation service. Send `variants` and `winnerId` (plus `variedDimension`
  * for phrasing), validate the response is a single sentence, and confirm it
  * doesn't reference any attribute the winning variant doesn't actually have.
  */

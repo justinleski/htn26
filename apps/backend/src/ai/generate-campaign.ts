@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   GenerateCampaignSchema,
   type AnalyzeEvidence,
@@ -55,7 +56,7 @@ function buildUserPrompt(input: GenerateCampaignDraftInput): string {
 
 export async function generateCampaignDraft(input: GenerateCampaignDraftInput): Promise<GenerateCampaign> {
   const raw = await input.model.completeJson({
-    system: SYSTEM_PROMPT,
+    system: `${SYSTEM_PROMPT}\nReturn one object matching this JSON schema, including all required fields. Copy merchantId and productId exactly from the input.\n${JSON.stringify(z.toJSONSchema(GenerateCampaignSchema))}`,
     user: buildUserPrompt(input),
     timeoutMs: input.timeoutMs,
   });

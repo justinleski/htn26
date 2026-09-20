@@ -14,7 +14,7 @@ export const TOP_INSIGHT_THEMES = ["waterproof", "style"] as const;
  * Analyzes product/review/ad evidence and returns the single top insight.
  *
  * TODO(real AI): Replace the body below with a server-side call to the
- * OpenAI Responses API (stage 1 of the AI workflow: "Analyze evidence").
+ * provider-neutral generation service (stage 1: "Analyze evidence").
  * Send `evidence` (or a retrieved/filtered subset from Elasticsearch) plus
  * the computed metrics, validate the response against the Insight schema,
  * and verify every sourceProductIds/sourceAdIds entry actually exists in

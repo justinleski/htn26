@@ -1,10 +1,13 @@
 import { fileURLToPath } from "node:url";
 import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig, type UserConfig } from "vite";
+import { defineConfig, loadEnv, type UserConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const backendRoot = fileURLToPath(new URL(".", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+for (const [key, value] of Object.entries(loadEnv(process.env.NODE_ENV || "development", backendRoot, ""))) {
+  process.env[key] ??= value;
+}
 
 if (
   process.env.HOST &&

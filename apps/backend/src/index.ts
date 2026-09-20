@@ -20,3 +20,11 @@ export * from "./runtime/prisma-client.js";
 export * from "./runtime/elastic-client.js";
 export * from "./runtime/platform.js";
 export * from "./monitoring/sentry.js";
+export {
+  generateStructuredText,
+  GenerationError as TextGenerationError,
+  type GenerationErrorCode as TextGenerationErrorCode,
+  type TextGenerationRequest,
+  type TextGenerator,
+} from "./generation/text.js";
+export * from "./generation/contracts.js";

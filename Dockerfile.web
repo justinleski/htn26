@@ -1,11 +1,9 @@
-# Workspace-aware frontend image. Build from the repo root:
-#   docker build -f Dockerfile.web --build-arg VITE_API_URL=https://api.example.com -t htn26-web .
+# Build the static frontend and serve same-origin API requests through the web host.
+# Build context: repository root. Runtime upstream is configured with API_UPSTREAM.
 FROM node:20-alpine AS build
 WORKDIR /app
 
 ENV HUSKY=0
-ARG VITE_API_URL=
-ENV VITE_API_URL=$VITE_API_URL
 
 COPY package.json package-lock.json ./
 COPY apps/backend/package.json apps/backend/package.json
@@ -17,11 +15,14 @@ COPY apps/frontend apps/frontend
 RUN npm run build -w @htn26/frontend
 
 FROM node:20-alpine
-RUN npm install -g serve@14.2.4
 WORKDIR /app
 COPY --from=build /app/apps/frontend/dist ./dist
+COPY scripts/web-server.mjs ./scripts/web-server.mjs
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV PUBLIC_APP_URL=https://adgile.tech
+ENV API_UPSTREAM=https://api-production-aa9b.up.railway.app
+USER node
 EXPOSE 3000
-CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
+CMD ["node", "scripts/web-server.mjs"]

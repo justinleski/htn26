@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { generateStructuredText, type TextGenerator } from "../generation/text.js";
 import { GenerationError } from "./errors.js";
+import { GenerationError as TextGenerationError } from "../generation/text.js";
 import { TimeoutError, withBoundedRetries, withTimeout } from "./reliability.js";
 
 export interface ModelCompleteOptions {
@@ -12,15 +14,32 @@ export interface ModelClient {
   completeJson(options: ModelCompleteOptions): Promise<unknown>;
 }
 
-export const DEFAULT_BACKBOARD_TIMEOUT_MS = 20_000;
+/** Adapts any prompt-to-text provider to the pipeline; no native JSON mode required. */
+export function createTextModelClient(generator: TextGenerator): ModelClient {
+  return {
+    async completeJson(request) {
+      try {
+        return await generateStructuredText({ generator, schema: z.unknown(), instructions: request.system, prompt: request.user, timeoutMs: request.timeoutMs });
+      } catch (error) {
+        if (error instanceof TextGenerationError) throw new GenerationError({
+          code: error.code === "timeout" ? "timeout" : error.code === "invalid-output" ? "schema_parse" : "provider_unavailable",
+          stage: "model", userMessage: error.message,
+        });
+        throw error;
+      }
+    },
+  };
+}
+
+export const DEFAULT_BACKBOARD_TIMEOUT_MS = 45_000;
 export const DEFAULT_BACKBOARD_ATTEMPTS = 1;
 export const DEFAULT_BACKBOARD_BASE_URL = "https://app.backboard.io/api";
 
-// Keep routine generation on a low-cost open-weight model. Change this constant to
+// Keep routine generation on a low-cost model with reliable JSON output. Change this constant to
 // FRONTIER_BACKBOARD_MODEL when quality matters more than inference cost.
 export const DEFAULT_BACKBOARD_MODEL = {
   provider: "openrouter",
-  model: "meta-llama/llama-3.3-8b-instruct",
+  model: "openai/gpt-4o-mini",
 } as const;
 
 export const FRONTIER_BACKBOARD_MODEL = {
@@ -126,6 +145,8 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
                   model_name: model,
                   stream: false,
                   json_output: true,
+                  memory: "off",
+                  web_search: "off",
                 }),
                 signal: controller.signal,
               }),
@@ -133,10 +154,16 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
               "Backboard request timed out",
             );
             if (!response.ok) {
-              throw new Error(`Backboard request failed with status ${response.status}: ${await response.text()}`);
+              throw new Error(`Backboard request failed with status ${response.status}`);
             }
             const result = (await response.json()) as BackboardMessageResponse;
             const text = result.content?.trim();
+            if (text?.startsWith("LLM Error:")) {
+              throw new GenerationError({
+                code: "provider_unavailable", stage: "model",
+                userMessage: "Backboard could not run the configured model. Check the model configuration and try again.",
+              });
+            }
             if (!text) {
               throw new GenerationError({
                 code: "schema_parse",
@@ -148,12 +175,12 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
             return extractJson(text);
           } catch (error) {
             if (error instanceof GenerationError) throw error;
-            if (error instanceof TimeoutError) {
+            if (error instanceof TimeoutError || controller.signal.aborted) {
               throw new GenerationError({
                 code: "timeout",
                 stage: "model",
                 userMessage: "Campaign generation timed out. Please try again.",
-                details: error.message,
+                details: "Backboard request exceeded its timeout.",
                 cause: error,
               });
             }

@@ -2,20 +2,22 @@
 # Production Partner URLs live in shopify.app.toml and must not be clobbered.
 
 client_id = "6aebdeb1f6abf29f3e80369a0811d47d"
-application_url = "https://example.com"
+application_url = "https://localhost:3458"
 embedded = false
 name = "htn26"
 
 [access_scopes]
 scopes = "write_products,read_products"
 optional_scopes = [ ]
-use_legacy_install_flow = false
+use_legacy_install_flow = true
 
 [auth]
-redirect_urls = [ ]
+redirect_urls = [ "https://localhost:3458/api/auth/callback" ]
 
 [webhooks]
 api_version = "2026-07"
+
+# Shop-specific uninstall subscriptions are registered after OAuth.
 
 [build]
 automatically_update_urls_on_dev = true

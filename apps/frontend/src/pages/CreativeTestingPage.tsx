@@ -31,17 +31,9 @@ function FunnelArrowDown() {
 }
 
 export function CreativeTestingPage() {
-  const { connected, ready } = useStoreConnection();
+  const { connected } = useStoreConnection();
   const navigate = useNavigate();
   const { rounds, finalAd, selectVariant } = useCreativeExperiment(experiment);
-
-  if (!ready) {
-    return (
-      <main className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-        <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
-      </main>
-    );
-  }
 
   if (!connected) {
     return <Navigate to="/" replace />;
@@ -59,9 +51,10 @@ export function CreativeTestingPage() {
       >
         <BackButton onClick={() => navigate(-1)} />
         <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight text-[var(--color-mark)] sm:text-3xl">
-          Creative testing{product ? ` — ${product.title}` : ""}
+          Creative testing demo{product ? ` — ${product.title}` : ""}
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--color-ink-on-dark)]/60">
+          Illustrative demo only: these are simulated results, not your store's data.
           Each round isolates one creative variable and locks in the winner by
           conversion rate before testing the next. Click a row to see the full
           post and pick what feeds the optimized ad. Click a column header to

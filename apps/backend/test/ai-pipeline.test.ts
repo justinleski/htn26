@@ -8,11 +8,13 @@ import {
 import {
   GenerationError,
   applyClaimDecisions,
+  verifyClaimDecisions,
   createElasticEvidenceRetriever,
   createFixtureEvidenceRetriever,
   createMemoryPersistence,
   createPrismaCampaignPersistence,
   createScriptedModelClient,
+  createBackboardModelClient,
   generateCampaign,
   FIXTURE_ADS,
   FIXTURE_PRODUCTS,
@@ -22,6 +24,40 @@ import type { ElasticDataClient, ElasticSearchResponse, EvidenceDocument } from 
 
 const merchantId = "merchant-1";
 const productId = "rain-jacket";
+
+test("Backboard sends isolated requests and extracts JSON text", async (context) => {
+  context.mock.method(globalThis, "fetch", async (url: string, options: RequestInit) => {
+    assert.equal(url, "https://app.backboard.io/api/threads/messages");
+    assert.equal(new Headers(options.headers).get("X-API-Key"), "test-key");
+    const body = JSON.parse(String(options.body));
+    assert.equal(body.content, "Evidence");
+    assert.equal(body.system_prompt, "Analyze");
+    assert.equal(body.memory, "off");
+    assert.equal(body.web_search, "off");
+    assert.equal(body.thread_id, undefined);
+    assert.equal(body.llm_provider, "test-provider");
+    assert.equal(body.model_name, "test-model");
+    return Response.json({ content: '```json\n{"ok":true}\n```' });
+  });
+  const model = createBackboardModelClient({ apiKey: "test-key", provider: "test-provider", model: "test-model" });
+  assert.deepEqual(await model.completeJson({ system: "Analyze", user: "Evidence" }), { ok: true });
+});
+
+test("Backboard failures are safe and malformed model output is rejected", async (context) => {
+  let response = new Response("private provider response", { status: 401 });
+  context.mock.method(globalThis, "fetch", async () => response);
+  const model = createBackboardModelClient({ apiKey: "test-key" });
+  await assert.rejects(model.completeJson({ system: "Analyze", user: "Evidence" }), (error: unknown) => {
+    assert.ok(error instanceof GenerationError);
+    assert.equal(error.code, "provider_unavailable");
+    assert.ok(!JSON.stringify(error).includes("private provider response"));
+    return true;
+  });
+  response = Response.json({ content: "not JSON" });
+  await assert.rejects(model.completeJson({ system: "Analyze", user: "Evidence" }), (error: unknown) => error instanceof GenerationError && error.code === "schema_parse");
+  response = Response.json({ content: "LLM Error: Model is not supported." });
+  await assert.rejects(model.completeJson({ system: "Analyze", user: "Evidence" }), (error: unknown) => error instanceof GenerationError && error.code === "provider_unavailable");
+});
 
 const analysis: AnalyzeEvidence = {
   merchantId,
@@ -199,7 +235,14 @@ test("rewritten claims replace the original wording", () => {
   assert.equal(next.hooks[0], "Reviewers stayed dry in heavy rain");
 });
 
-test("zero-hang failure path works if OpenAI is down", async () => {
+test("claim rewrites without valid evidence are rejected instead of accepted", () => {
+  const decisions = verifyClaimDecisions([{ claim: "Guaranteed protection", status: "rewritten", rewrittenClaim: "Certified protection", sourceIds: ["invented"], reason: "Changed wording" }], new Set(["real-source"]));
+  assert.equal(decisions[0]?.status, "unsupported");
+  assert.deepEqual(decisions[0]?.sourceIds, []);
+  assert.deepEqual(verifyClaimDecisions([], new Set(["real-source"])), []);
+});
+
+test("zero-hang failure path works if the text provider is down", async () => {
   const persistence = createMemoryPersistence();
   const started = Date.now();
   await assert.rejects(

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { AnalyzeEvidenceSchema, type AnalyzeEvidence } from "../schemas.js";
 import { attachAdMetrics, knownSourceIds, splitEvidence, type EvidenceRecord } from "./evidence.js";
 import { GenerationError } from "./errors.js";
@@ -59,7 +60,7 @@ export async function analyzeEvidence(input: AnalyzeEvidenceInput): Promise<Anal
   }
 
   const raw = await input.model.completeJson({
-    system: SYSTEM_PROMPT,
+    system: `${SYSTEM_PROMPT}\nReturn one object matching this JSON schema, including all required fields. Copy merchantId and productId exactly from the input.\n${JSON.stringify(z.toJSONSchema(AnalyzeEvidenceSchema))}`,
     user: buildUserPrompt(input),
     timeoutMs: input.timeoutMs,
   });

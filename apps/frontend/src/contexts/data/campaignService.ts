@@ -21,11 +21,8 @@ export interface GenerateCampaignInput {
  * Generates 3 editable campaign variants (hook, caption, hashtags) from a
  * product and the insight backing it.
  *
- * TODO(real AI): Replace the body below with a server-side call to the
- * OpenAI Responses API (stage 2 of the AI workflow: "Generate campaign"),
- * using Zod-validated structured output. Then run stage 3 ("Check claims")
- * against `insight` before returning variants to the client, flagging or
- * stripping any unsupported claims.
+ * Illustrative fixture for the creative demo. Live campaigns use /api/generate,
+ * backed by the server's generic TextGenerator interface and Backboard adapter.
  */
 export async function generateCampaign(
   input: GenerateCampaignInput,

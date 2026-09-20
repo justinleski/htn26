@@ -14,6 +14,7 @@
     "setup:backend": "npm run setup -w @htn26/backend",
     "typecheck": "npm run typecheck -w @htn26/backend",
     "test": "npm run test -w @htn26/backend",
+    "test:web": "node --test scripts/web-server.test.mjs",
     "check:frontend-structure": "node scripts/check-frontend-structure.mjs",
     "check:backend-health": "npm run check:health -w @htn26/backend",
     "prepare": "husky"

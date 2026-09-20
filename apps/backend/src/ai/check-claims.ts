@@ -70,7 +70,7 @@ export function applyClaimDecisions(campaign: GenerateCampaign, decisions: Claim
 export function verifyClaimDecisions(decisions: ClaimDecision[], known: Set<string>): ClaimDecision[] {
   const verified = decisions.map((decision) => {
     const sourceIds = filterIds(decision.sourceIds, known);
-    if (decision.status === "supported" && sourceIds.length === 0) {
+    if (decision.status !== "unsupported" && sourceIds.length === 0) {
       return {
         ...decision,
         sourceIds: [],
@@ -80,27 +80,19 @@ export function verifyClaimDecisions(decisions: ClaimDecision[], known: Set<stri
     }
     return { ...decision, sourceIds };
   });
-  return verified.length > 0
-    ? verified
-    : [
-        {
-          claim: "Campaign claims were reviewed against supplied evidence.",
-          status: "supported",
-          sourceIds: [...known].slice(0, 1),
-          reason: "No discrete claims were extracted; the campaign was limited to supplied evidence.",
-        },
-      ];
+  return verified;
 }
 
 export async function checkClaims(input: CheckClaimsInput): Promise<CheckClaims> {
   const known = knownSourceIds(input.evidence);
+  const outputSchema = z.object({ decisions: z.array(ClaimDecisionSchema).min(1) });
   const raw = await input.model.completeJson({
-    system: SYSTEM_PROMPT,
+    system: `${SYSTEM_PROMPT}\nReturn one object matching this JSON schema, including all required fields.\n${JSON.stringify(z.toJSONSchema(outputSchema))}`,
     user: buildUserPrompt(input),
     timeoutMs: input.timeoutMs,
   });
   const parsed = parseStageOutput(
-    z.object({ decisions: z.array(ClaimDecisionSchema).min(1) }),
+    outputSchema,
     raw,
     "check-claims",
   );

@@ -12,7 +12,7 @@ function delay(ms: number) {
  * qualify; this only writes the sentence.
  *
  * TODO(real AI): Replace the body below with a server-side call to the
- * OpenAI/Gemini API. Send the qualifying ads (name, theme, mediaType,
+ * provider-neutral text generation service. Send qualifying ads (name, theme, mediaType,
  * platformBreakdown) and validate the response references only platforms
  * actually present in that ad's breakdown.
  */

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "react-router build",
     "build:data": "tsc -p tsconfig.build.json",
-    "dev": "shopify app dev --config shopify.app.dev.toml",
+    "dev": "shopify app dev --config dev",
     "dev:rr": "react-router dev",
     "config:link": "shopify app config link",
     "deploy": "shopify app deploy",
@@ -25,7 +25,9 @@
     "shopify": "shopify",
     "typecheck": "react-router typegen && tsc --noEmit && tsc -p tsconfig.data.json --noEmit",
     "check:health": "tsx scripts/check-health.ts",
-    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts test/copilot-session.test.ts test/api-auth.test.ts"
+    "check:standalone": "tsx scripts/check-standalone.ts",
+    "check:backboard": "tsx scripts/check-backboard.ts",
+    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts test/generation.test.ts test/ai-pipeline.test.ts test/oauth.test.ts test/legacy-auth.test.ts test/webhooks.test.ts"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -40,6 +42,7 @@
     "@sentry/node": "^10.75.0",
     "@sentry/react": "^10.75.0",
     "@shopify/app-bridge-react": "^4.2.4",
+    "@shopify/shopify-api": "^13.1.0",
     "@shopify/shopify-app-react-router": "^1.1.0",
     "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
     "isbot": "^5.1.31",
