@@ -92,15 +92,17 @@ test("GPTZero supervision checks upstream input and revises flagged output", asy
   assert.equal(instructions[1]?.includes("generic AI phrasing"), true);
 });
 
-test("GPTZero supervision fails closed after the revision budget", async () => {
+test("GPTZero supervision returns the lowest-scoring response after the revision budget", async () => {
+  const outputs = ["initial", "revision one", "revision two"];
+  const assessments = [{ aiProbability: 1 }, { aiProbability: 0.9 }, { aiProbability: 0.95 }];
   const generator = withGPTZeroSupervision(
-    { async generateText() { return "still generic"; } },
-    { async assess() { return { aiProbability: 1 }; } },
-    { maxRevisions: 1 },
+    { async generateText() { return outputs.shift() ?? "unexpected"; } },
+    { async assess() { return assessments.shift() ?? { aiProbability: 1 }; } },
+    { maxRevisions: 1, superviseInput: false },
   );
-  await assert.rejects(generator.generateText({
+  assert.equal(await generator.generateText({
     instructions: "Return text.", prompt: "Evidence", signal: new AbortController().signal,
-  }), /GPTZero rejected generated text/);
+  }), "revision one");
 });
 
 const draft = {

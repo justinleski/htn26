@@ -71,7 +71,7 @@ export interface GPTZeroSupervisionOptions {
 }
 
 const DEFAULT_AI_PROBABILITY_THRESHOLD = 0.8;
-const DEFAULT_MAX_REVISIONS = 1;
+const DEFAULT_MAX_REVISIONS = 5;
 
 function revisionInstructions(assessment: GPTZeroAssessment): string {
   const percentage = Math.round(assessment.aiProbability * 100);
@@ -87,8 +87,8 @@ export function withGPTZeroSupervision(
   const threshold = options.aiProbabilityThreshold ?? DEFAULT_AI_PROBABILITY_THRESHOLD;
   const maxRevisions = options.maxRevisions ?? DEFAULT_MAX_REVISIONS;
   if (threshold < 0 || threshold > 1) throw new RangeError("aiProbabilityThreshold must be between 0 and 1");
-  if (!Number.isSafeInteger(maxRevisions) || maxRevisions < 0 || maxRevisions > 3) {
-    throw new RangeError("maxRevisions must be an integer between 0 and 3");
+  if (!Number.isSafeInteger(maxRevisions) || maxRevisions < 0 || maxRevisions > 5) {
+    throw new RangeError("maxRevisions must be an integer between 0 and 5");
   }
 
   return {
@@ -102,17 +102,24 @@ export function withGPTZeroSupervision(
       }
 
       let text = await generator.generateText({ ...request, instructions });
+      let bestText = text;
+      let bestAssessment = await inspector.assess(text, request.signal);
+      if (bestAssessment.aiProbability < threshold) return text;
+
       for (let revision = 0; revision < maxRevisions; revision += 1) {
-        const outputAssessment = await inspector.assess(text, request.signal);
-        if (outputAssessment.aiProbability < threshold) return text;
+        const outputAssessment = bestAssessment;
         text = await generator.generateText({
           ...request,
           instructions: `${instructions}${revisionInstructions(outputAssessment)}`,
         });
+        const assessment = await inspector.assess(text, request.signal);
+        if (assessment.aiProbability < bestAssessment.aiProbability) {
+          bestText = text;
+          bestAssessment = assessment;
+        }
+        if (assessment.aiProbability < threshold) return text;
       }
-      const finalAssessment = await inspector.assess(text, request.signal);
-      if (finalAssessment.aiProbability >= threshold) throw new Error("GPTZero rejected generated text");
-      return text;
+      return bestText;
     },
   };
 }
