@@ -17,9 +17,7 @@ redirect_urls = [ "https://localhost:3458/api/auth/callback" ]
 [webhooks]
 api_version = "2026-07"
 
-[[webhooks.subscriptions]]
-topics = [ "app/uninstalled" ]
-uri = "/webhooks/app/uninstalled"
+# Shop-specific uninstall subscriptions are registered after OAuth.
 
 [build]
 automatically_update_urls_on_dev = true

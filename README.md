@@ -46,7 +46,7 @@ The public app is **https://adgile.tech**. The web server serves the frontend an
 
 Before switching the canonical URL, verify the custom domain's DNS and HTTPS certificate. Deploy both services from the same verified `main` commit and confirm healthy startup; API startup runs non-destructive Prisma migrations. Keep the existing database and credentials.
 
-Publish `apps/backend/shopify.app.toml` with Shopify CLI to register the production application URL, `https://adgile.tech/api/auth/callback`, and the uninstall webhook. The separate `shopify.app.dev.toml` contains local URLs, so development does not overwrite the production configuration file.
+Publish `apps/backend/shopify.app.toml` with Shopify CLI to register the production application URL and `https://adgile.tech/api/auth/callback`. Each successful OAuth callback ensures a shop-specific uninstall webhook exists before storing the session. The separate `shopify.app.dev.toml` contains local URLs, so development does not overwrite the production configuration file.
 
 ```bash
 docker build -f Dockerfile.api -t htn26-api .

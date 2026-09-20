@@ -17,9 +17,8 @@ redirect_urls = [ "https://adgile.tech/api/auth/callback" ]
 [webhooks]
 api_version = "2026-07"
 
-[[webhooks.subscriptions]]
-topics = [ "app/uninstalled" ]
-uri = "/webhooks/app/uninstalled"
+# Shop-specific uninstall subscriptions are registered after OAuth because this
+# app uses the legacy installation flow.
 
 [build]
 automatically_update_urls_on_dev = false

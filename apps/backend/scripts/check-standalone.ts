@@ -43,7 +43,9 @@ try {
     const merchant = await prisma.merchant.create({ data: { shopDomain } });
     created.push(merchant.id);
   }
-  setAbstractFetchFunc(async () => Response.json({ access_token: "smoke-token-not-real", scope: auth.api.config.scopes?.toString(), expires_in: 3600,
+  setAbstractFetchFunc(async (_url, init) => String(init?.body).includes("AdgileUninstallWebhook")
+    ? Response.json({ data: { webhookSubscriptions: { nodes: [{ id: "smoke-hook" }] } } })
+    : Response.json({ access_token: "smoke-token-not-real", scope: auth.api.config.scopes?.toString(), expires_in: 3600,
     associated_user_scope: auth.api.config.scopes?.toString(), associated_user: { id: 123, first_name: "Smoke", last_name: "Test", email: "smoke@example.com", email_verified: true, account_owner: true, locale: "en", collaborator: false } }));
   const [cookie, otherCookie] = await Promise.all(shops.map(signIn));
   assert.equal((await (await api("session", cookie!)).json()).connected, true);

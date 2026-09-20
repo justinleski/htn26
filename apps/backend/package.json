@@ -27,7 +27,7 @@
     "check:health": "tsx scripts/check-health.ts",
     "check:standalone": "tsx scripts/check-standalone.ts",
     "check:backboard": "tsx scripts/check-backboard.ts",
-    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts test/generation.test.ts test/ai-pipeline.test.ts test/oauth.test.ts test/legacy-auth.test.ts"
+    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts test/generation.test.ts test/ai-pipeline.test.ts test/oauth.test.ts test/legacy-auth.test.ts test/webhooks.test.ts"
   },
   "engines": {
     "node": ">=20.0.0"

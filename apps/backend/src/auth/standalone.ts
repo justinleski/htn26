@@ -1,5 +1,6 @@
 import "@shopify/shopify-api/adapters/web-api";
 import { shopifyApi, ApiVersion, LogSeverity, type Session, type Shopify } from "@shopify/shopify-api";
+import { ensureUninstallWebhook } from "./webhooks.js";
 
 export interface SessionStore {
   loadSession(id: string): Promise<Session | undefined>;
@@ -71,6 +72,11 @@ export function createStandaloneAuth(options: {
       const { session, headers } = await api.auth.callback<Headers>({ rawRequest: request });
       if (!session.isOnline || !session.expires || !session.isActive(api.config.scopes)) {
         throw Response.json({ error: "Shopify did not grant the required access. Please reconnect." }, { status: 401 });
+      }
+      try {
+        await ensureUninstallWebhook(api, session, origin);
+      } catch {
+        throw Response.json({ error: "Could not finish Shopify connection. Please try again." }, { status: 503 });
       }
       if (!await options.storage.storeSession(session)) throw new Error("Could not store Shopify session");
       headers.set("Location", `${origin}/dashboard`);

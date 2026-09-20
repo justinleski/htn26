@@ -44,7 +44,10 @@ test("OAuth requests online access, binds a signed state cookie, and validates c
   const state = url.searchParams.get("state")!;
   const cookies = cookieHeader(start);
   let exchanges = 0;
-  setAbstractFetchFunc(async () => {
+  setAbstractFetchFunc(async (_url, init) => {
+    if (String(init?.body).includes("AdgileUninstallWebhook")) {
+      return Response.json({ data: { webhookSubscriptions: { nodes: [{ id: "existing-uninstall-hook" }] } } });
+    }
     exchanges++;
     return Response.json({ access_token: "never-return-this-token", scope: "read_products", expires_in: 3600,
       associated_user_scope: "read_products", associated_user: { id: 123, first_name: "Test", last_name: "User", email: "test@example.com", email_verified: true, account_owner: true, locale: "en", collaborator: false } });
