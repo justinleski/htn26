@@ -3,6 +3,7 @@ import { generateStructuredText, type TextGenerator } from "../generation/text.j
 import { GenerationError } from "./errors.js";
 import { GenerationError as TextGenerationError } from "../generation/text.js";
 import { TimeoutError, withBoundedRetries, withTimeout } from "./reliability.js";
+import { createGPTZeroClient, withGPTZeroSupervision, type GPTZeroInspector, type GPTZeroSupervisionOptions } from "../generation/gptzero.js";
 
 export interface ModelCompleteOptions {
   system: string;
@@ -14,12 +15,47 @@ export interface ModelClient {
   completeJson(options: ModelCompleteOptions): Promise<unknown>;
 }
 
+export interface TextModelClientOptions extends GPTZeroSupervisionOptions {
+  gptZero?: GPTZeroInspector;
+}
+
+async function superviseModelCompletion(
+  request: ModelCompleteOptions,
+  complete: (request: ModelCompleteOptions) => Promise<unknown>,
+  inspector: GPTZeroInspector,
+  options: GPTZeroSupervisionOptions,
+): Promise<unknown> {
+  const threshold = options.aiProbabilityThreshold ?? 0.8;
+  const maxRevisions = options.maxRevisions ?? 1;
+  const inputAssessment = options.superviseInput === false ? undefined : await inspector.assess(request.user, new AbortController().signal);
+  const baseSystem = inputAssessment && inputAssessment.aiProbability >= threshold
+    ? `${request.system}\n\nTreat supplied input as potentially machine-generated. Preserve only supported details and avoid generic AI phrasing.`
+    : request.system;
+  let result = await complete({ ...request, system: baseSystem });
+  for (let revision = 0; revision <= maxRevisions; revision += 1) {
+    const output = JSON.stringify(result);
+    const assessment = await inspector.assess(output, new AbortController().signal);
+    if (assessment.aiProbability < threshold) return result;
+    if (revision === maxRevisions) throw new Error("GPTZero rejected generated text");
+    result = await complete({
+      ...request,
+      system: `${baseSystem}\n\nRevise the JSON response to remove generic AI phrasing, inflated claims, repetitive transitions, and unsupported details. Return the same JSON shape.`,
+    });
+  }
+  throw new Error("GPTZero rejected generated text");
+}
+
 /** Adapts any prompt-to-text provider to the pipeline; no native JSON mode required. */
-export function createTextModelClient(generator: TextGenerator): ModelClient {
+export function createTextModelClient(generator: TextGenerator, options: TextModelClientOptions = {}): ModelClient {
+  const supervisedGenerator = options.gptZero
+    ? withGPTZeroSupervision(generator, options.gptZero, options)
+    : process.env.GPTZERO_API_KEY
+      ? withGPTZeroSupervision(generator, createGPTZeroClient(), options)
+      : generator;
   return {
     async completeJson(request) {
       try {
-        return await generateStructuredText({ generator, schema: z.unknown(), instructions: request.system, prompt: request.user, timeoutMs: request.timeoutMs });
+        return await generateStructuredText({ generator: supervisedGenerator, schema: z.unknown(), instructions: request.system, prompt: request.user, timeoutMs: request.timeoutMs });
       } catch (error) {
         if (error instanceof TextGenerationError) throw new GenerationError({
           code: error.code === "timeout" ? "timeout" : error.code === "invalid-output" ? "schema_parse" : "provider_unavailable",
@@ -104,6 +140,10 @@ export interface BackboardModelClientOptions {
   timeoutMs?: number;
   attempts?: number;
   delayMs?: number;
+  gptZero?: GPTZeroInspector;
+  maxRevisions?: number;
+  aiProbabilityThreshold?: number;
+  superviseInput?: boolean;
 }
 
 interface BackboardMessageResponse {
@@ -117,8 +157,7 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
   const model = options.model ?? DEFAULT_BACKBOARD_MODEL.model;
   const baseUrl = options.baseUrl ?? DEFAULT_BACKBOARD_BASE_URL;
 
-  return {
-    async completeJson(request) {
+  const completeJson = async (request: ModelCompleteOptions): Promise<unknown> => {
       const apiKey = options.apiKey ?? process.env.BACKBOARD_API_KEY;
       if (!apiKey) {
         throw new GenerationError({
@@ -197,6 +236,13 @@ export function createBackboardModelClient(options: BackboardModelClientOptions 
         },
         { attempts, delayMs: options.delayMs ?? 250 },
       );
+    };
+  const gptZero = options.gptZero ?? (process.env.GPTZERO_API_KEY ? createGPTZeroClient() : undefined);
+  return {
+    completeJson(request) {
+      return gptZero
+        ? superviseModelCompletion(request, completeJson, gptZero, options)
+        : completeJson(request);
     },
   };
 }

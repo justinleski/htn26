@@ -49,6 +49,7 @@ Shopify's session cookies are secure and the callback returns to SHOPIFY_APP_URL
 | `DATABASE_URL` | Session, merchant data, campaigns, generation runs |
 | `BACKBOARD_API_KEY` | Campaign generation; see [provider contract](GENERATION.md) |
 | `BACKBOARD_PROVIDER`, `BACKBOARD_MODEL` | Optional model overrides |
+| `GPTZERO_API_KEY` | Optional server-side supervision of generated and LLM-produced input text |
 | `ELASTIC_URL`, `ELASTIC_API_KEY` | Optional evidence indexing after imports/sync |
 | `SENTRY_DSN` | Optional server errors and traces |
 | `FRONTEND_URL` | Optional Vite origin for development mutations |

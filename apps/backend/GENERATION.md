@@ -10,6 +10,13 @@ runs are stored in Postgres; history and reopen read those persisted records.
 
 Set `BACKBOARD_API_KEY` in the backend environment. Optional `BACKBOARD_PROVIDER`
 and `BACKBOARD_MODEL` override the defaults in `src/ai/model.ts`.
+Set `GPTZERO_API_KEY` to enable the default generation decorator. It checks
+upstream prompts and generated text, asks the provider for one bounded revision
+when GPTZero finds likely AI-generated phrasing, and rejects output that remains
+above the threshold. `GPTZERO_API_KEY` is optional so local scripted providers
+continue to work without a network call. GPTZero is a style/provenance signal;
+it cannot independently establish factual accuracy, so evidence and claim
+validation remain required.
 Confirm the selected model is available in your Backboard account before a live
 demo. The configured default is `openrouter` / `openai/gpt-4o-mini`.
 Credentials remain on the server. Each stage uses a fresh Backboard thread with
