@@ -15,6 +15,7 @@ export type AppEnv = {
   sentryDsn: string | undefined;
   sentryEnvironment: string;
   backboardApiKey: string | undefined;
+  gptZeroApiKey: string | undefined;
   googleClientId: string | undefined;
   googleClientSecret: string | undefined;
   googleRedirectUri: string | undefined;
@@ -42,6 +43,7 @@ export function getEnv(): AppEnv {
     sentryEnvironment:
       process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
     backboardApiKey: process.env.BACKBOARD_API_KEY || undefined,
+    gptZeroApiKey: process.env.GPTZERO_API_KEY || undefined,
     googleClientId: process.env.GOOGLE_CLIENT_ID || undefined,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || undefined,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || undefined,

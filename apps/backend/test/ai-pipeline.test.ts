@@ -64,6 +64,22 @@ test("Backboard supervision checks output without rescanning unchanged stage inp
   assert.deepEqual(assessments, [1]);
 });
 
+test("Backboard uses GPTZero when its API key is configured", async (context) => {
+  const urls: string[] = [];
+  context.mock.method(globalThis, "fetch", async (url: string, options: RequestInit) => {
+    urls.push(url);
+    if (url.includes("gptzero")) {
+      assert.equal(new Headers(options.headers).get("x-api-key"), "gptzero-key");
+      return Response.json({ documents: [{ completely_generated_prob: 0.1 }] });
+    }
+    return Response.json({ content: '{"ok":true}' });
+  });
+
+  const model = createBackboardModelClient({ apiKey: "test-key", gptZeroApiKey: "gptzero-key" });
+  assert.deepEqual(await model.completeJson({ system: "Analyze", user: "Evidence" }), { ok: true });
+  assert.deepEqual(urls, ["https://app.backboard.io/api/threads/messages", "https://api.gptzero.me/v2/predict/text"]);
+});
+
 test("Backboard failures are safe and malformed model output is rejected", async (context) => {
   let response = new Response("private provider response", { status: 401 });
   context.mock.method(globalThis, "fetch", async () => response);
