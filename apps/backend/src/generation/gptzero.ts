@@ -71,7 +71,7 @@ export interface GPTZeroSupervisionOptions {
 }
 
 const DEFAULT_AI_PROBABILITY_THRESHOLD = 0.8;
-const DEFAULT_MAX_REVISIONS = 5;
+const DEFAULT_MAX_REVISIONS = 3;
 
 function revisionInstructions(assessment: GPTZeroAssessment): string {
   const percentage = Math.round(assessment.aiProbability * 100);
