@@ -154,6 +154,33 @@ test("generateCampaign returns a valid campaign from fixtures", async () => {
   assert.equal(persistence.campaigns.length, 1);
 });
 
+test("blank unused rewrite fields do not reject supported campaign claims", async () => {
+  for (const rewrittenClaim of ["", "   ", null]) {
+    const persistence = createMemoryPersistence();
+    const checks = supportedClaims();
+    const result = await generateCampaign({ merchantId, productId, persistence,
+      model: createScriptedModelClient([analysis, campaignDraft(), {
+        decisions: checks.decisions.map((decision) => ({ ...decision, rewrittenClaim })),
+      }]),
+    });
+    assert.equal(result.hooks[0], campaignDraft().hooks[0]);
+    assert.equal(persistence.runs[0]?.status, "succeeded");
+  }
+});
+
+test("requested rewrites still reject missing, blank, or null replacement text", async () => {
+  for (const rewrittenClaim of [undefined, "", "   ", null]) {
+    const persistence = createMemoryPersistence();
+    await assert.rejects(generateCampaign({ merchantId, productId, persistence,
+      model: createScriptedModelClient([analysis, campaignDraft(), { decisions: [{
+        ...supportedClaims().decisions[0], status: "rewritten", rewrittenClaim,
+      }] }]),
+    }), (error: unknown) => error instanceof GenerationError && error.code === "schema_parse" && error.stage === "check-claims");
+    assert.equal(persistence.campaigns.length, 0);
+    assert.equal(persistence.runs[0]?.status, "failed");
+  }
+});
+
 test("fake source IDs are rejected", async () => {
   const persistence = createMemoryPersistence();
   await assert.rejects(
