@@ -3,7 +3,7 @@ import { analyzeEvidence } from "./analyze-evidence.js";
 import { checkClaims } from "./check-claims.js";
 import { GenerationError, toUserFacingError } from "./errors.js";
 import { generateCampaignDraft } from "./generate-campaign.js";
-import { DEFAULT_OPENAI_TIMEOUT_MS, type ModelClient } from "./model.js";
+import { DEFAULT_BACKBOARD_TIMEOUT_MS, type ModelClient } from "./model.js";
 import type { CampaignPersistence } from "./persist.js";
 import { TimeoutError, withBoundedRetries, withTimeout } from "./reliability.js";
 import { createFixtureEvidenceRetriever, type EvidenceRetriever } from "./retrieve-evidence.js";
@@ -27,7 +27,7 @@ function guardModel(model: ModelClient, timeoutMs: number, retryAttempts: number
           () => withTimeout(
             model.completeJson({ ...options, timeoutMs }),
             timeoutMs,
-            "OpenAI request timed out",
+            "Backboard request timed out",
           ),
           { attempts: retryAttempts, delayMs: retryDelayMs },
         );
@@ -48,7 +48,7 @@ function guardModel(model: ModelClient, timeoutMs: number, retryAttempts: number
 }
 
 export async function generateCampaign(input: GenerateCampaignPipelineInput): Promise<Campaign> {
-  const timeoutMs = input.timeoutMs ?? DEFAULT_OPENAI_TIMEOUT_MS;
+  const timeoutMs = input.timeoutMs ?? DEFAULT_BACKBOARD_TIMEOUT_MS;
   const model = guardModel(input.model, timeoutMs, input.retryAttempts ?? 2, input.retryDelayMs ?? 250);
   const retrieve = input.retrieveEvidence ?? createFixtureEvidenceRetriever();
   const run = await input.persistence.createGenerationRun({ merchantId: input.merchantId });

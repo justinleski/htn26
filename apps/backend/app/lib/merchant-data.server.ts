@@ -4,7 +4,7 @@ import { getElasticClient } from "./elastic.server";
 import {
   getEnv,
   hasElastic,
-  hasOpenAi,
+  hasBackboard,
   hasSentry,
   hasGoogleOAuthClient,
 } from "./env.server";
@@ -319,9 +319,9 @@ async function loadMerchantDashboardImpl(shop: string) {
     {
       id: "ai",
       label: "Generate campaign",
-      detail: hasOpenAi(env)
-        ? "API key present, but analyze → generate → claim-check is not wired yet"
-        : "Not wired yet (OPENAI_API_KEY empty)",
+      detail: hasBackboard(env)
+        ? "API key present, but analyze -> generate -> claim-check is not wired yet"
+        : "Not wired yet (BACKBOARD_API_KEY empty)",
       tone: "blocked",
     },
     {

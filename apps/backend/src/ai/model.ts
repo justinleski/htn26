@@ -12,8 +12,21 @@ export interface ModelClient {
   completeJson(options: ModelCompleteOptions): Promise<unknown>;
 }
 
-export const DEFAULT_OPENAI_TIMEOUT_MS = 20_000;
-export const DEFAULT_OPENAI_ATTEMPTS = 1;
+export const DEFAULT_BACKBOARD_TIMEOUT_MS = 20_000;
+export const DEFAULT_BACKBOARD_ATTEMPTS = 1;
+export const DEFAULT_BACKBOARD_BASE_URL = "https://app.backboard.io/api";
+
+// Keep routine generation on a low-cost open-weight model. Change this constant to
+// FRONTIER_BACKBOARD_MODEL when quality matters more than inference cost.
+export const DEFAULT_BACKBOARD_MODEL = {
+  provider: "openrouter",
+  model: "meta-llama/llama-3.3-8b-instruct",
+} as const;
+
+export const FRONTIER_BACKBOARD_MODEL = {
+  provider: "anthropic",
+  model: "claude-sonnet-4-20250514",
+} as const;
 
 export function extractJson(text: string): unknown {
   const trimmed = text.trim();
@@ -64,71 +77,72 @@ export function createScriptedModelClient(replies: Array<unknown | (() => Promis
   };
 }
 
-export interface OpenAIModelClientOptions {
+export interface BackboardModelClientOptions {
   apiKey?: string;
+  baseUrl?: string;
+  provider?: string;
   model?: string;
   timeoutMs?: number;
   attempts?: number;
   delayMs?: number;
 }
 
-interface OpenAIResponsesClient {
-  responses: {
-    create(
-      body: {
-        model: string;
-        input: Array<{ role: string; content: string }>;
-        text: { format: { type: "json_object" } };
-      },
-      request: { timeout: number },
-    ): Promise<{ output_text?: string }>;
-  };
+interface BackboardMessageResponse {
+  content?: string | null;
 }
 
-export function createOpenAIModelClient(options: OpenAIModelClientOptions = {}): ModelClient {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_OPENAI_TIMEOUT_MS;
-  const attempts = options.attempts ?? DEFAULT_OPENAI_ATTEMPTS;
-  const model = options.model ?? "gpt-4o-mini";
+export function createBackboardModelClient(options: BackboardModelClientOptions = {}): ModelClient {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_BACKBOARD_TIMEOUT_MS;
+  const attempts = options.attempts ?? DEFAULT_BACKBOARD_ATTEMPTS;
+  const provider = options.provider ?? DEFAULT_BACKBOARD_MODEL.provider;
+  const model = options.model ?? DEFAULT_BACKBOARD_MODEL.model;
+  const baseUrl = options.baseUrl ?? DEFAULT_BACKBOARD_BASE_URL;
 
   return {
     async completeJson(request) {
-      const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
+      const apiKey = options.apiKey ?? process.env.BACKBOARD_API_KEY;
       if (!apiKey) {
         throw new GenerationError({
           code: "provider_unavailable",
           stage: "model",
-          userMessage: "Campaign generation is unavailable because the AI service is not configured.",
+          userMessage: "Campaign generation is unavailable because Backboard is not configured.",
         });
       }
 
       return withBoundedRetries(
         async () => {
           const callTimeout = request.timeoutMs ?? timeoutMs;
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), callTimeout);
           try {
-            const { default: OpenAI } = await import("openai");
-            const client = new OpenAI({ apiKey, maxRetries: 0, timeout: callTimeout }) as unknown as OpenAIResponsesClient;
             const response = await withTimeout(
-              client.responses.create(
-                {
-                  model,
-                  input: [
-                    { role: "developer", content: request.system },
-                    { role: "user", content: request.user },
-                  ],
-                  text: { format: { type: "json_object" } },
-                },
-                { timeout: callTimeout },
-              ),
+              fetch(`${baseUrl}/threads/messages`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
+                body: JSON.stringify({
+                  content: request.user,
+                  system_prompt: request.system,
+                  llm_provider: provider,
+                  model_name: model,
+                  stream: false,
+                  json_output: true,
+                }),
+                signal: controller.signal,
+              }),
               callTimeout,
-              "OpenAI request timed out",
+              "Backboard request timed out",
             );
-            const text = response.output_text?.trim();
+            if (!response.ok) {
+              throw new Error(`Backboard request failed with status ${response.status}: ${await response.text()}`);
+            }
+            const result = (await response.json()) as BackboardMessageResponse;
+            const text = result.content?.trim();
             if (!text) {
               throw new GenerationError({
                 code: "schema_parse",
                 stage: "model",
                 userMessage: "The campaign generator returned an unexpected format. Please try again.",
-                details: "OpenAI response did not include output text.",
+                details: "Backboard response did not include content.",
               });
             }
             return extractJson(text);
@@ -146,10 +160,12 @@ export function createOpenAIModelClient(options: OpenAIModelClientOptions = {}):
             throw new GenerationError({
               code: "provider_unavailable",
               stage: "model",
-              userMessage: "Campaign generation is unavailable because the AI service failed. Please try again.",
+              userMessage: "Campaign generation is unavailable because Backboard failed. Please try again.",
               details: error instanceof Error ? error.message : String(error),
               cause: error,
             });
+          } finally {
+            clearTimeout(timer);
           }
         },
         { attempts, delayMs: options.delayMs ?? 250 },
