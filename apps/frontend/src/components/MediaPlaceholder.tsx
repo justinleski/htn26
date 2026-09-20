@@ -11,6 +11,8 @@ function hashHue(seed: string): number {
   return Math.abs(hash) % 360;
 }
 
+const WINNER_OF_THREE_PLACEHOLDER = "/mock/creative/winner-of-three-placeholder.png";
+
 export function MediaPlaceholder({
   variant,
   size = "sm",
@@ -21,6 +23,31 @@ export function MediaPlaceholder({
   const hue = hashHue(variant.mediaAssetUrl);
   const isVideo = variant.mediaType === "video";
   const gradient = `linear-gradient(135deg, hsl(${hue} 65% 90%), hsl(${hue} 60% 74%))`;
+  const isWinnerPlaceholder = variant.mediaAssetUrl === WINNER_OF_THREE_PLACEHOLDER;
+
+  if (isWinnerPlaceholder) {
+    if (size === "lg") {
+      return (
+        <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+          <img
+            src={variant.mediaAssetUrl}
+            alt="Winner of three product thumbnail"
+            className="h-full w-full rounded-lg object-contain bg-white"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative flex h-11 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
+        <img
+          src={variant.mediaAssetUrl}
+          alt="Winner of three product thumbnail"
+          className="h-full w-full rounded-md object-contain bg-white"
+        />
+      </div>
+    );
+  }
 
   if (size === "lg") {
     return (

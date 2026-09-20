@@ -47,6 +47,70 @@
       "text": "Water beaded off the shell and the hood stayed secure in strong wind.",
       "source": "demo-review-import",
       "reviewedAt": "2026-08-24T11:00:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-007",
+      "productId": "rain-jacket",
+      "rating": 4,
+      "text": "The cuffs adjust easily and kept rain from running up my sleeves.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-08-27T08:40:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-008",
+      "productId": "rain-jacket",
+      "rating": 5,
+      "text": "I wore it on a windy coastal hike and it stayed comfortable throughout.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-08-29T13:10:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-009",
+      "productId": "rain-jacket",
+      "rating": 2,
+      "text": "The jacket works in light rain, but the zipper started catching after a few wears.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-01T17:25:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-010",
+      "productId": "rain-jacket",
+      "rating": 4,
+      "text": "Good everyday layer with useful inside storage and a hood that adjusts well.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-04T10:05:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-011",
+      "productId": "rain-jacket",
+      "rating": 5,
+      "text": "It packs down small and dried quickly after a full afternoon in the rain.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-07T15:50:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-012",
+      "productId": "rain-jacket",
+      "rating": 3,
+      "text": "The fabric feels sturdy, though the sleeves are a little long for me.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-10T09:35:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-013",
+      "productId": "rain-jacket",
+      "rating": 4,
+      "text": "Reliable coverage for cycling to work and plenty of room for a thin fleece.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-13T07:55:00.000Z"
+    },
+    {
+      "sourceId": "demo-review-014",
+      "productId": "rain-jacket",
+      "rating": 5,
+      "text": "The reflective details are subtle during the day but helpful on dark commutes.",
+      "source": "demo-review-import",
+      "reviewedAt": "2026-09-16T19:20:00.000Z"
     }
   ]
 }
