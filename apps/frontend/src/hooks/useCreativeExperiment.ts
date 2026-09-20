@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { useEffect, useMemo, useState } from "react";
-=======
 import { useCallback, useEffect, useMemo, useState } from "react";
->>>>>>> origin/main
 import { explainRoundWinner } from "@/contexts/data/creativeExplanationService";
 import { pickRoundWinner } from "@/contexts/data/creativeTesting";
 import type { CreativeExperiment, TestRound } from "@/contexts/data/types";
 
-<<<<<<< HEAD
-function buildFinalAd(rounds: TestRound[]): CreativeExperiment["finalAd"] | undefined {
-=======
 function pickForRound(round: TestRound | undefined, selectedId: string | undefined) {
   if (!round) return null;
   const selected = round.variants.find((v) => v.id === selectedId);
@@ -20,23 +13,10 @@ function buildFinalAd(
   rounds: TestRound[],
   selections: Record<number, string>,
 ): CreativeExperiment["finalAd"] | undefined {
->>>>>>> origin/main
   const captionRound = rounds.find((r) => r.variedDimension === "caption");
   const mediaRound = rounds.find((r) => r.variedDimension === "media");
   const hashtagsRound = rounds.find((r) => r.variedDimension === "hashtags");
 
-<<<<<<< HEAD
-  const captionWinner = captionRound && pickRoundWinner(captionRound.variants);
-  const mediaWinner = mediaRound && pickRoundWinner(mediaRound.variants);
-  const hashtagsWinner = hashtagsRound && pickRoundWinner(hashtagsRound.variants);
-
-  if (!captionWinner || !mediaWinner || !hashtagsWinner) return undefined;
-
-  return {
-    caption: captionWinner.caption,
-    mediaAssetUrl: mediaWinner.mediaAssetUrl,
-    hashtags: hashtagsWinner.hashtags,
-=======
   const captionVariant = pickForRound(captionRound, captionRound && selections[captionRound.round]);
   const mediaVariant = pickForRound(mediaRound, mediaRound && selections[mediaRound.round]);
   const hashtagsVariant = pickForRound(hashtagsRound, hashtagsRound && selections[hashtagsRound.round]);
@@ -47,7 +27,6 @@ function buildFinalAd(
     caption: captionVariant.caption,
     mediaAssetUrl: mediaVariant.mediaAssetUrl,
     hashtags: hashtagsVariant.hashtags,
->>>>>>> origin/main
   };
 }
 
@@ -62,12 +41,6 @@ export function useCreativeExperiment(experiment: CreativeExperiment) {
     [experiment],
   );
 
-<<<<<<< HEAD
-  const finalAd = useMemo(() => buildFinalAd(rounds), [rounds]);
-
-  // whyItWon comes from the AI explanation call; fetched sequentially per
-  // round so the funnel reads as each round locking in before the next.
-=======
   // The variant currently feeding the final ad, per round. Defaults to that
   // round's winner but the merchant can override it by clicking any card —
   // mix-and-match across rounds without disturbing the underlying test data.
@@ -95,7 +68,6 @@ export function useCreativeExperiment(experiment: CreativeExperiment) {
 
   // whyItWon comes from the AI explanation call and always describes the
   // algorithmic winner, regardless of what the merchant has selected.
->>>>>>> origin/main
   const [explanations, setExplanations] = useState<Record<number, string>>({});
 
   useEffect(() => {
@@ -123,13 +95,6 @@ export function useCreativeExperiment(experiment: CreativeExperiment) {
   }, [rounds]);
 
   const enrichedRounds = useMemo(
-<<<<<<< HEAD
-    () => rounds.map((round) => ({ ...round, whyItWon: explanations[round.round] })),
-    [rounds, explanations],
-  );
-
-  return { rounds: enrichedRounds, finalAd };
-=======
     () =>
       rounds.map((round) => ({
         ...round,
@@ -140,5 +105,4 @@ export function useCreativeExperiment(experiment: CreativeExperiment) {
   );
 
   return { rounds: enrichedRounds, finalAd, selectVariant };
->>>>>>> origin/main
 }

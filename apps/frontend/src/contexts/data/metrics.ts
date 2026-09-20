@@ -130,8 +130,6 @@ export function getPlatformSpreadFlag(
     message: `This ${ad.mediaType} performs ${ratio.toFixed(1)}x better on ${best.platform} than ${worst.platform} — consider reallocating spend.`,
   };
 }
-<<<<<<< HEAD
-=======
 
 const BROAD_APPEAL_MIN_PLATFORMS = 2;
 const BROAD_APPEAL_MAX_SPREAD_RATIO = 1.5;
@@ -151,4 +149,3 @@ export function getBroadAppealAds(ads: AdPerformance[]): AdPerformance[] {
     return max / min < BROAD_APPEAL_MAX_SPREAD_RATIO;
   });
 }
->>>>>>> origin/main
