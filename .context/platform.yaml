@@ -1,0 +1,119 @@
+goal: Standalone Vite frontend hosted as the product; Shopify React Router backend is the platform API. Shopify is a data source, not the Admin embed UI.
+shop: htn26-rain-jackets.myshopify.com
+out_of_scope: [openai, elastic_live_path, sentry_as_working, live_ads]
+
+api:
+  base: "${VITE_API_URL}"
+  auth: Bearer copilot JWT/HMAC (SESSION_SECRET). Not App Bridge. After Shopify OAuth, backend redirects to FRONTEND_URL/insights?token=...
+  default_shop: htn26-rain-jackets.myshopify.com
+  endpoints:
+    - { method: GET, path: /health, auth: false, notes: public JSON }
+    - { method: GET, path: /api/session, auth: true, body: { connected, shop, storeName } }
+    - { method: GET, path: /api/dashboard, auth: true, notes: merchant-scoped products, reviews, ads, metrics, findings }
+    - { method: POST, path: /api/sync, auth: true, notes: Admin GraphQL product sync via unauthenticated.admin(shop) }
+    - { method: POST, path: /api/import-demo, auth: true, notes: labelled demo reviews/ads, attribution demo }
+
+progress:
+  backend:
+    status: done
+    notes: >
+      HMAC-SHA256 copilot JWT (shop + merchantId + exp) via SESSION_SECRET.
+      After Shopify OAuth, afterAuth and /auth/copilot redirect to
+      FRONTEND_URL/insights?token=... (default http://localhost:5173).
+      CORS allowlist FRONTEND_URL / FRONTEND_ORIGIN on /api/* and /health.
+      GET /api/session, GET /api/dashboard, POST /api/sync (unauthenticated.admin),
+      POST /api/import-demo are merchant-scoped; 401 if token missing/bad.
+      /health stays public. /app Polaris is debug-only. Did not edit shopify.app.toml
+      (infra already set embedded=false). typecheck + test passed.
+    files:
+      - apps/backend/app/lib/copilot-session.server.ts
+      - apps/backend/app/lib/cors.server.ts
+      - apps/backend/app/lib/api.server.ts
+      - apps/backend/app/lib/copilot-oauth.server.ts
+      - apps/backend/app/lib/env.server.ts
+      - apps/backend/app/shopify.server.ts
+      - apps/backend/app/routes/api.session.ts
+      - apps/backend/app/routes/api.dashboard.ts
+      - apps/backend/app/routes/api.sync.ts
+      - apps/backend/app/routes/api.import-demo.ts
+      - apps/backend/app/routes/auth.copilot.ts
+      - apps/backend/app/routes/_index/route.tsx
+      - apps/backend/app/routes/health.tsx
+      - apps/backend/.env.example
+      - apps/backend/package.json
+      - apps/backend/test/copilot-session.test.ts
+      - apps/backend/test/api-auth.test.ts
+  frontend:
+    status: done
+    notes: "Standalone Vite app uses Bearer /api/session, /api/dashboard, /api/sync, /api/import-demo; OAuth via /auth/login?shop=; token persisted and stripped from /insights."
+    files:
+      - apps/frontend/src/contexts/data/copilotApi.ts
+      - apps/frontend/src/contexts/data/adaptDashboard.ts
+      - apps/frontend/src/contexts/StoreConnectionContext.tsx
+      - apps/frontend/src/hooks/useTopInsight.ts
+      - apps/frontend/src/pages/WelcomePage.tsx
+      - apps/frontend/src/pages/InsightsPage.tsx
+      - apps/frontend/src/pages/CampaignPage.tsx
+      - apps/frontend/src/pages/CreativeTestingPage.tsx
+      - apps/frontend/src/vite-env.d.ts
+      - apps/frontend/vite.config.ts
+      - apps/frontend/.env.example
+  infra:
+    status: done
+    notes: >
+      Hosted demo live on Railway project helpful-vision
+      (08982ba3-2279-478b-8420-ddeb9e6642cb) env production
+      (c5bf71a5-f74a-4964-8564-794b20614d0c). Services api + web on
+      justinleski/htn26@feat/platform. Latest ship commits: 2b983c4 (API+frontend
+      wiring) then ceb31e4 (stop root railway.toml from forcing Dockerfile.api onto
+      web). Current SUCCESS deploys: api cd9e11e0, web 2c023cd8 (Dockerfile.web).
+      URLs: https://api-production-aa9b.up.railway.app and
+      https://web-production-39cfa.up.railway.app. Secrets SHOPIFY_API_SECRET +
+      SESSION_SECRET set on api (never in git). FRONTEND_URL=web domain;
+      VITE_API_URL=api domain (baked into web build). Partner app htn26-3 released
+      with App URL + redirects = api host, embedded=false. Do not put active
+      [build]/[deploy] in root railway.toml (monorepo). OpenAI still mock;
+      Elastic/Sentry not configured (expected).
+    files:
+      - Dockerfile.api
+      - Dockerfile.web
+      - .dockerignore
+      - railway.toml
+      - railway.web.toml
+      - apps/backend/Dockerfile
+      - apps/backend/shopify.app.toml
+      - apps/backend/shopify.app.dev.toml
+      - apps/backend/package.json
+      - apps/backend/.env.example
+      - apps/backend/README.md
+      - apps/backend/app/lib/env.server.ts
+      - apps/backend/app/routes/api.session.ts
+      - apps/frontend/.env.example
+      - apps/frontend/src/vite-env.d.ts
+      - scripts/railway-set-api-secrets.sh
+      - README.md
+
+  validation:
+    status: passing
+    last_run: "2026-09-20T00:45:00Z"
+    notes: >
+      Hosted smoke green for API + web. Connect opens Shopify OAuth/install;
+      completing merchant login/install is interactive. After install, afterAuth
+      should redirect to FRONTEND_URL/insights?token=…. If Admin opens the app
+      shell instead, visit
+      https://api-production-aa9b.up.railway.app/auth/copilot?shop=htn26-rain-jackets.myshopify.com
+      to mint the token redirect. Prisma Session count was 0 until a production
+      OAuth completes. OpenAI mock; Elastic/Sentry out of scope.
+    results:
+      - { check: frontend-structure, status: pass }
+      - { check: typecheck, status: pass }
+      - { check: test, status: pass, notes: "44/44" }
+      - { check: frontend-tsc, status: pass, notes: "npx tsc --noEmit -p apps/frontend" }
+      - { check: GET /health (hosted), status: pass, notes: "HTTP 200; shopify+postgres ok" }
+      - { check: GET /api/session (hosted, no auth), status: pass, notes: "HTTP 401 JSON Unauthorized (not 404)" }
+      - { check: GET /auth/login?shop=… (hosted), status: pass, notes: "HTTP 302 to admin.shopify.com oauth/install" }
+      - { check: GET web / (hosted), status: pass, notes: "HTTP 200; VITE_API_URL baked to api host" }
+      - { check: Connect button, status: blocked, notes: "Needs interactive Shopify login/install; may land in Admin Apps if already installed" }
+    blockers:
+      - "Interactive Shopify merchant login/install to create offline session + insights?token redirect"
+      - "OpenAI still mock (out of scope)"

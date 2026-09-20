@@ -10,9 +10,17 @@ import { products } from "@/contexts/data/mockData";
 const experiment = getMockCreativeExperiment();
 
 export function CreativeTestingPage() {
-  const { connected } = useStoreConnection();
+  const { connected, ready } = useStoreConnection();
   const navigate = useNavigate();
   const { rounds, finalAd, selectVariant } = useCreativeExperiment(experiment);
+
+  if (!ready) {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+      </main>
+    );
+  }
 
   if (!connected) {
     return <Navigate to="/" replace />;

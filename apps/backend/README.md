@@ -29,9 +29,11 @@ Public health JSON: `GET /health` (no Shopify session).
 
 | Variable | Needed for |
 |----------|------------|
-| `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | Admin embed + GraphQL |
+| `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | Partner app + Admin GraphQL |
 | `DATABASE_URL` | Prisma Session, integrations, and merchant data |
-| `SESSION_SECRET` | App session hardening |
+| `SESSION_SECRET` | Copilot JWT/HMAC + app session |
+| `SHOPIFY_APP_URL` | Public API origin (Railway `api` URL in production) |
+| `FRONTEND_URL` | Public Vite origin (Railway `web` URL in production) |
 | `ELASTIC_URL` / `ELASTIC_API_KEY` | Search client health |
 | `SENTRY_DSN` / `VITE_SENTRY_DSN` | Server errors/traces and browser Session Replay |
 | `GOOGLE_CLIENT_ID` / `SECRET` / `REDIRECT_URI` | Future GA Connect (app-level only) |
@@ -78,4 +80,4 @@ Prefer user/global MCP config (secrets not in git):
 - Sentry: https://mcp.sentry.dev/mcp
 - Elasticsearch: `@elastic/mcp-server-elasticsearch` once cluster exists
 
-Railway Shared Variables for deployed `DATABASE_URL`, Elastic, Sentry, Shopify secrets. Full Railway project create is optional until accounts exist.
+Railway: reuse the existing Postgres project. `api` uses `Dockerfile.api` + `railway.toml`; `web` uses `Dockerfile.web` + `railway.web.toml`. Wire `DATABASE_URL=${{Postgres.DATABASE_URL}}` on `api`. Never commit `.env`.

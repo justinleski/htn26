@@ -1,0 +1,3 @@
+# Documentation only for the web service. Prefer setting dockerfilePath /
+# build+start commands on the Railway `web` service directly (Config-as-Code
+# at the repo root applies to all services and is unsafe in this monorepo).

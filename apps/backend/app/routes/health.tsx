@@ -3,6 +3,7 @@
  */
 import type { LoaderFunctionArgs } from "react-router";
 import { checkDatabaseHealth } from "../db.server";
+import { applyCorsHeaders, corsPreflight } from "../lib/cors.server";
 import { checkElasticHealth } from "../lib/elastic.server";
 import { checkSentryHealth } from "../lib/sentry.server";
 import {
@@ -11,7 +12,11 @@ import {
   hasShopifyCredentials,
 } from "../lib/env.server";
 
-export const loader = async (_args: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  if (request.method === "OPTIONS") {
+    return corsPreflight(request);
+  }
+
   const env = getEnv();
   const [database, elastic] = await Promise.all([
     checkDatabaseHealth(),
@@ -30,5 +35,8 @@ export const loader = async (_args: LoaderFunctionArgs) => {
     sentry,
   };
 
-  return Response.json(body, { status: database.ok ? 200 : 503 });
+  return applyCorsHeaders(
+    request,
+    Response.json(body, { status: database.ok ? 200 : 503 }),
+  );
 };

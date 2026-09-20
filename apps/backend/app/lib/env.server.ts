@@ -19,6 +19,8 @@ export type AppEnv = {
   googleClientSecret: string | undefined;
   googleRedirectUri: string | undefined;
   gaDefaultPropertyId: string | undefined;
+  frontendUrl: string;
+  frontendOrigin: string | undefined;
   nodeEnv: string;
   port: number;
 };
@@ -44,6 +46,8 @@ export function getEnv(): AppEnv {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || undefined,
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || undefined,
     gaDefaultPropertyId: process.env.GA_DEFAULT_PROPERTY_ID || undefined,
+    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+    frontendOrigin: process.env.FRONTEND_ORIGIN || undefined,
     nodeEnv: process.env.NODE_ENV || "development",
     port: Number(process.env.PORT || 3000),
   };

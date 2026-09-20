@@ -1,8 +1,9 @@
-# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+# Production Partner app config. Hosted URLs — do not point `shopify app dev` at this file.
+# Local tunnels use shopify.app.dev.toml (`npm run dev` / `npm run dev:backend`).
 
 client_id = "6aebdeb1f6abf29f3e80369a0811d47d"
-application_url = "https://example.com"
-embedded = true
+application_url = "https://api-production-aa9b.up.railway.app"
+embedded = false
 name = "htn26"
 
 [access_scopes]
@@ -12,10 +13,14 @@ optional_scopes = [ ]
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ ]
+redirect_urls = [
+  "https://api-production-aa9b.up.railway.app/auth/callback",
+  "https://api-production-aa9b.up.railway.app/auth/shopify/callback",
+  "https://api-production-aa9b.up.railway.app/api/auth/callback",
+]
 
 [webhooks]
 api_version = "2026-07"
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false

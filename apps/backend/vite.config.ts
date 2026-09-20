@@ -51,7 +51,17 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 0,
   },
+  // Keep this app on React 18 even though the frontend workspace hoists React 19.
+  resolve: {
+    dedupe: ["react", "react-dom"],
+  },
+  ssr: {
+    noExternal: [
+      "@shopify/app-bridge-react",
+      "@shopify/shopify-app-react-router",
+    ],
+  },
   optimizeDeps: {
-    include: ["@shopify/app-bridge-react"],
+    include: ["react", "react-dom", "@shopify/app-bridge-react"],
   },
 }) satisfies UserConfig;

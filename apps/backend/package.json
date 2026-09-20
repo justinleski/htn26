@@ -7,7 +7,7 @@
   "scripts": {
     "build": "react-router build",
     "build:data": "tsc -p tsconfig.build.json",
-    "dev": "shopify app dev",
+    "dev": "shopify app dev --config shopify.app.dev.toml",
     "dev:rr": "react-router dev",
     "config:link": "shopify app config link",
     "deploy": "shopify app deploy",
@@ -25,7 +25,7 @@
     "shopify": "shopify",
     "typecheck": "react-router typegen && tsc --noEmit && tsc -p tsconfig.data.json --noEmit",
     "check:health": "tsx scripts/check-health.ts",
-    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts"
+    "test": "tsx --test test/metrics.test.ts test/import.test.ts test/shopify.test.ts test/elasticsearch.test.ts test/prisma-repositories.test.ts test/dashboard-metrics.test.ts test/dashboard-findings.test.ts test/import-and-index.test.ts test/sync-and-index.test.ts test/reindex.test.ts test/copilot-session.test.ts test/api-auth.test.ts"
   },
   "engines": {
     "node": ">=20.0.0"
