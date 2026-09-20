@@ -26,6 +26,7 @@ interface ShopifyProductsPage {
 }
 
 export interface ProductUpsert {
+  id?: string;
   merchantId: string;
   shopifyId: string;
   title: string;

@@ -9,4 +9,5 @@ build
 coverage
 *.log
 .vite
+.react-router
 graphify-out/

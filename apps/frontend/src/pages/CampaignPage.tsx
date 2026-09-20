@@ -13,18 +13,30 @@ interface CampaignLocationState {
 }
 
 export function CampaignPage() {
-  const { connected } = useStoreConnection();
+  const { connected, ready } = useStoreConnection();
   const navigate = useNavigate();
   const location = useLocation();
 
   const { productId } = (location.state as CampaignLocationState | null) ?? {};
-  const product = products.find((p) => p.id === productId) ?? products[0] ?? null;
-
-  const { insight, loading: insightLoading } = useTopInsight();
+  const { insight, products: liveProducts, loading: insightLoading } = useTopInsight();
+  const product =
+    liveProducts.find((p) => p.id === productId) ??
+    products.find((p) => p.id === productId) ??
+    liveProducts[0] ??
+    products[0] ??
+    null;
   const { status, statusLine, variants, runId, regenerate } = useCampaignGeneration(
     product,
     insight,
   );
+
+  if (!ready) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6">
+        <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+      </main>
+    );
+  }
 
   if (!connected) {
     return <Navigate to="/" replace />;

@@ -1,0 +1,27 @@
+# Workspace-aware frontend image. Build from the repo root:
+#   docker build -f Dockerfile.web --build-arg VITE_API_URL=https://api.example.com -t htn26-web .
+FROM node:20-alpine AS build
+WORKDIR /app
+
+ENV HUSKY=0
+ARG VITE_API_URL=
+ENV VITE_API_URL=$VITE_API_URL
+
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json apps/backend/package.json
+COPY apps/frontend/package.json apps/frontend/package.json
+
+RUN npm ci --ignore-scripts --include=dev && npm cache clean --force
+
+COPY apps/frontend apps/frontend
+RUN npm run build -w @htn26/frontend
+
+FROM node:20-alpine
+RUN npm install -g serve@14.2.4
+WORKDIR /app
+COPY --from=build /app/apps/frontend/dist ./dist
+
+ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
+CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
