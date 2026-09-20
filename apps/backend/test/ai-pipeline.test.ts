@@ -181,6 +181,46 @@ test("requested rewrites still reject missing, blank, or null replacement text",
   }
 });
 
+test("a variant omitted by the claim checker cannot retain an unverified rating", async () => {
+  const persistence = createMemoryPersistence();
+  const draft = campaignDraft();
+  draft.variants[1]!.content = "Your ideal rain gear at a fantastic rating of 4.4 out of 5!";
+  const campaign = await generateCampaign({ merchantId, productId, persistence,
+    model: createScriptedModelClient([analysis, draft, supportedClaims()]),
+  });
+  assert.equal(campaign.hooks[0], draft.hooks[0]);
+  assert.equal(campaign.variants[0]?.content, draft.variants[0]?.content);
+  assert.ok(!campaign.variants[1]?.content.includes("4.4"));
+  assert.ok(campaign.validationResults.some((row) => row.includes("did not review this complete copy")));
+  assert.equal(persistence.campaigns[0]?.variants[1]?.content, campaign.variants[1]?.content);
+});
+
+test("reviewing a substring does not approve the rest of an advertising claim", async () => {
+  const draft = campaignDraft();
+  draft.hooks[0] = "Stay dry through the whole commute with a guaranteed 100% success rate";
+  for (const status of ["supported", "unsupported", "rewritten"]) {
+    const campaign = await generateCampaign({ merchantId, productId,
+      model: createScriptedModelClient([analysis, draft, { decisions: [{
+        ...supportedClaims().decisions[0], status,
+        ...(status === "rewritten" ? { rewrittenClaim: "A reviewer stayed dry during a commute" } : {}),
+      }] }]),
+      persistence: createMemoryPersistence(),
+    });
+    assert.ok(!campaign.hooks[0]?.includes("100%"));
+  }
+});
+
+test("overlapping unreviewed copy is completely removed before shorter replacements", async () => {
+  const draft = campaignDraft();
+  draft.hooks[1] = "Rain gear";
+  draft.captions[1] = "Rain gear has a guaranteed 100% success rate";
+  const campaign = await generateCampaign({ merchantId, productId,
+    model: createScriptedModelClient([analysis, draft, supportedClaims()]),
+    persistence: createMemoryPersistence(),
+  });
+  assert.ok(!campaign.captions[1]?.includes("100%"));
+});
+
 test("fake source IDs are rejected", async () => {
   const persistence = createMemoryPersistence();
   await assert.rejects(
