@@ -1,0 +1,15 @@
+{
+  "id": "rain-jacket",
+  "shopifyId": "demo:rain-jacket",
+  "title": "Rain Jacket",
+  "description": "A lightweight waterproof shell for city commutes and sudden downpours.",
+  "price": "129.00",
+  "currency": "CAD",
+  "attributes": {
+    "handle": "rain-jacket",
+    "vendor": "Northline Demo",
+    "productType": "Outerwear",
+    "tags": ["rain", "waterproof", "commute"]
+  },
+  "sourceUpdatedAt": "2026-08-01T00:00:00.000Z"
+}
