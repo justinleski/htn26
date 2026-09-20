@@ -5,12 +5,17 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @htn26/shopify",
-    "dev:prototype": "npm run dev -w @htn26/frontend",
-    "build": "npm run build -w @htn26/backend && npm run build -w @htn26/shopify && npm run build -w @htn26/frontend",
-    "typecheck": "npm run typecheck -w @htn26/backend && npm run typecheck -w @htn26/shopify",
+    "dev": "npm run dev -w @htn26/frontend",
+    "dev:frontend": "npm run dev -w @htn26/frontend",
+    "dev:backend": "npm run dev -w @htn26/backend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:frontend": "npm run build -w @htn26/frontend",
+    "build:backend": "npm run build -w @htn26/backend",
+    "setup:backend": "npm run setup -w @htn26/backend",
+    "typecheck": "npm run typecheck -w @htn26/backend",
     "test": "npm run test -w @htn26/backend",
     "check:frontend-structure": "node scripts/check-frontend-structure.mjs",
+    "check:backend-health": "npm run check:health -w @htn26/backend",
     "prepare": "husky"
   },
   "devDependencies": {

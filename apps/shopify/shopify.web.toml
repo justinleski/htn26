@@ -1,7 +1,0 @@
-name = "web"
-roles = ["frontend", "backend"]
-webhooks_path = "/webhooks/app/uninstalled"
-
-[commands]
-predev = "npm run db:generate"
-dev = "npm run db:migrate && npm run dev:local"

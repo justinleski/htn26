@@ -65,22 +65,22 @@ model Merchant {
 }
 
 model Product {
-  id             String          @id @default(cuid())
-  merchantId     String
-  shopifyId      String
-  title          String
-  description    String          @default("")
-  price          Decimal         @db.Decimal(18, 4)
-  currency       String          @db.Char(3)
-  attributes     Json            @default("{}")
+  id              String          @id @default(cuid())
+  merchantId      String
+  shopifyId       String
+  title           String
+  description     String          @default("")
+  price           Decimal         @db.Decimal(18, 4)
+  currency        String          @db.Char(3)
+  attributes      Json            @default("{}")
   sourceUpdatedAt DateTime
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  merchant       Merchant        @relation(fields: [merchantId], references: [id], onDelete: Cascade)
-  reviews        Review[]
-  adPerformance  AdPerformance[]
-  insights       Insight[]
-  campaigns      Campaign[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  merchant        Merchant        @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  reviews         Review[]
+  adPerformance   AdPerformance[]
+  insights        Insight[]
+  campaigns       Campaign[]
 
   @@unique([merchantId, shopifyId])
   @@index([merchantId])

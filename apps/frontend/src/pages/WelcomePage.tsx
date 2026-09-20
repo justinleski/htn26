@@ -1,6 +1,22 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useStoreConnection } from "@/contexts/StoreConnectionContext";
 
 export function WelcomePage() {
+  const navigate = useNavigate();
+  const { connect } = useStoreConnection();
+  const [connecting, setConnecting] = useState(false);
+
+  function handleConnect() {
+    setConnecting(true);
+    // Simulated OAuth round-trip. Swap for real Shopify + ad account auth later.
+    setTimeout(() => {
+      connect();
+      navigate("/insights");
+    }, 600);
+  }
+
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6">
       <motion.div
@@ -12,12 +28,27 @@ export function WelcomePage() {
           Marketing Copilot
         </p>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          Welcome
+          Know why your best stuff works.
         </h1>
         <p className="mt-4 max-w-xl text-lg text-[var(--color-muted)]">
-          Placeholder landing page. Replace this copy when product UI work
-          starts.
+          Connect your store and ad accounts. We'll analyze your products,
+          reviews, and ad performance to surface what's actually driving
+          conversions — then draft your next campaign from it.
         </p>
+        <button
+          onClick={handleConnect}
+          disabled={connecting}
+          className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black transition-opacity disabled:opacity-60"
+        >
+          {connecting ? (
+            <>
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+              Connecting store & ad accounts...
+            </>
+          ) : (
+            "Connect Shopify store (demo)"
+          )}
+        </button>
       </motion.div>
     </main>
   );
