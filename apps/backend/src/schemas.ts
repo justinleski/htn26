@@ -140,6 +140,9 @@ export const ClaimDecisionSchema = z.object({
   sourceIds: z.array(id),
   reason: z.string().trim().min(1),
   rewrittenClaim: z.string().trim().min(1).optional(),
+}).refine((decision) => decision.status !== "rewritten" || Boolean(decision.rewrittenClaim), {
+  message: "Rewritten claims require non-empty replacement text",
+  path: ["rewrittenClaim"],
 });
 
 export const CheckClaimsSchema = z.object({
