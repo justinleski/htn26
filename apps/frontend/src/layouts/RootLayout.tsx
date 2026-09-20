@@ -34,7 +34,7 @@ function Header() {
             to={connected ? "/dashboard" : "/"}
             className="inline-flex items-center"
           >
-            <img src="/adgile-logo.png" alt="Adgile" className="h-8 w-auto" />
+            <img src="/mock/adgile-logo.png" alt="Adgile" className="h-8 w-auto" />
           </Link>
         </motion.div>
         {connected && (
