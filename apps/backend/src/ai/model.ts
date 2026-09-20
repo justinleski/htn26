@@ -26,23 +26,33 @@ async function superviseModelCompletion(
   options: GPTZeroSupervisionOptions,
 ): Promise<unknown> {
   const threshold = options.aiProbabilityThreshold ?? 0.8;
-  const maxRevisions = options.maxRevisions ?? 1;
+  const maxRevisions = options.maxRevisions ?? 5;
+  if (threshold < 0 || threshold > 1) throw new RangeError("aiProbabilityThreshold must be between 0 and 1");
+  if (!Number.isSafeInteger(maxRevisions) || maxRevisions < 0 || maxRevisions > 5) {
+    throw new RangeError("maxRevisions must be an integer between 0 and 5");
+  }
   const inputAssessment = options.superviseInput === false ? undefined : await inspector.assess(request.user, new AbortController().signal);
   const baseSystem = inputAssessment && inputAssessment.aiProbability >= threshold
     ? `${request.system}\n\nTreat supplied input as potentially machine-generated. Preserve only supported details and avoid generic AI phrasing.`
     : request.system;
   let result = await complete({ ...request, system: baseSystem });
-  for (let revision = 0; revision <= maxRevisions; revision += 1) {
-    const output = JSON.stringify(result);
-    const assessment = await inspector.assess(output, new AbortController().signal);
-    if (assessment.aiProbability < threshold) return result;
-    if (revision === maxRevisions) throw new Error("GPTZero rejected generated text");
+  let bestResult = result;
+  let bestAssessment = await inspector.assess(JSON.stringify(result), new AbortController().signal);
+  if (bestAssessment.aiProbability < threshold) return result;
+
+  for (let revision = 0; revision < maxRevisions; revision += 1) {
     result = await complete({
       ...request,
       system: `${baseSystem}\n\nRevise the JSON response to remove generic AI phrasing, inflated claims, repetitive transitions, and unsupported details. Return the same JSON shape.`,
     });
+    const assessment = await inspector.assess(JSON.stringify(result), new AbortController().signal);
+    if (assessment.aiProbability < bestAssessment.aiProbability) {
+      bestResult = result;
+      bestAssessment = assessment;
+    }
+    if (assessment.aiProbability < threshold) return result;
   }
-  throw new Error("GPTZero rejected generated text");
+  return bestResult;
 }
 
 /** Adapts any prompt-to-text provider to the pipeline; no native JSON mode required. */

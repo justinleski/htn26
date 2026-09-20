@@ -27,8 +27,10 @@ async function fixture(t, upstreamHandler = (_request, response) => response.end
   const tempBase = resolve(tmpdir());
   const distDir = await mkdtemp(join(tempBase, "htn26-web-test-"));
   await mkdir(join(distDir, "assets"));
+  await mkdir(join(distDir, "mock", "creative"), { recursive: true });
   await writeFile(join(distDir, "index.html"), "<!doctype html><h1>Adgile</h1>");
   await writeFile(join(distDir, "assets", "entry-AbC123.js"), 'console.log("frontend");');
+  await writeFile(join(distDir, "mock", "creative", "winner-of-three-placeholder.png"), Buffer.from([137, 80, 78, 71]));
   await writeFile(join(distDir, ".env"), "SHOULD_NEVER_BE_SERVED=true");
   const upstream = http.createServer(upstreamHandler);
   const upstreamUrl = await listen(upstream);
@@ -226,6 +228,10 @@ test("SPA routes and assets are served with correct cache, MIME and HEAD behavio
   assert.equal(head.status, 200);
   assert.equal(head.body.length, 0);
   assert.equal(head.headers["content-length"], asset.headers["content-length"]);
+  const publicImage = await request(webUrl, "/mock/creative/winner-of-three-placeholder.png");
+  assert.equal(publicImage.status, 200);
+  assert.equal(publicImage.headers["content-type"], "image/png");
+  assert.deepEqual(publicImage.body, Buffer.from([137, 80, 78, 71]));
 });
 
 test("unknown paths, secret files and encoded traversal never fall back to the SPA", async (t) => {
