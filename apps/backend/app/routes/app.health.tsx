@@ -8,7 +8,6 @@ import { captureAppError, checkSentryHealth } from "../lib/sentry.server";
 import {
   getEnv,
   hasGoogleOAuthClient,
-  hasOpenAi,
   hasShopifyCredentials,
 } from "../lib/env.server";
 
@@ -26,7 +25,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     sentry,
     shopifyConfigured: hasShopifyCredentials(env),
     googleOAuthConfigured: hasGoogleOAuthClient(env),
-    openaiConfigured: hasOpenAi(env),
     databaseConfigured: Boolean(env.databaseUrl),
   };
 };
@@ -88,7 +86,7 @@ export default function HealthPage() {
               : "not configured"}
           </s-list-item>
           <s-list-item>
-            OpenAI: {data.openaiConfigured ? "key present (workflow not wired)" : "not configured"}
+            Campaign generation: provider adapter and workflow not connected
           </s-list-item>
           <s-list-item>
             Google OAuth client:{" "}

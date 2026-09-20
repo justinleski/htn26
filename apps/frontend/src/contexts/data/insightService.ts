@@ -5,11 +5,16 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// The two messaging themes the top insight compares. Exported so the page
+// can run the same pure comparison (for the chart) without re-guessing which
+// themes this insight is about.
+export const TOP_INSIGHT_THEMES = ["waterproof", "style"] as const;
+
 /**
  * Analyzes product/review/ad evidence and returns the single top insight.
  *
  * TODO(real AI): Replace the body below with a server-side call to the
- * OpenAI Responses API (stage 1 of the AI workflow: "Analyze evidence").
+ * provider-neutral generation service (stage 1: "Analyze evidence").
  * Send `evidence` (or a retrieved/filtered subset from Elasticsearch) plus
  * the computed metrics, validate the response against the Insight schema,
  * and verify every sourceProductIds/sourceAdIds entry actually exists in
@@ -20,7 +25,7 @@ export async function generateTopInsight(
 ): Promise<Insight> {
   await delay(900);
 
-  const comparison = compareMessagingThemes(evidence.ads, "waterproof", "style");
+  const comparison = compareMessagingThemes(evidence.ads, ...TOP_INSIGHT_THEMES);
   const multiplier = comparison.multiplier;
 
   return {

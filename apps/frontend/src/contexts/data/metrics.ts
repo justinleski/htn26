@@ -19,6 +19,30 @@ export function bestPlatformStat(ad: AdPerformance): PlatformStat {
   );
 }
 
+// ctaClicks / ctr recovers impressions since ctr is defined as clicks over
+// impressions; conversions are conversionRate applied to those clicks.
+export function impressionsFor(stat: Pick<PlatformStat, "ctr" | "ctaClicks">): number {
+  return stat.ctr === 0 ? 0 : stat.ctaClicks / stat.ctr;
+}
+
+export function conversionsFor(stat: Pick<PlatformStat, "ctaClicks" | "conversionRate">): number {
+  return stat.ctaClicks * stat.conversionRate;
+}
+
+export function costPerAcquisition(
+  stat: Pick<PlatformStat, "ctaClicks" | "conversionRate" | "spend">,
+): number {
+  const conversions = conversionsFor(stat);
+  return conversions === 0 ? 0 : stat.spend / conversions;
+}
+
+export function costPerImpression(
+  stat: Pick<PlatformStat, "ctr" | "ctaClicks" | "spend">,
+): number {
+  const impressions = impressionsFor(stat);
+  return impressions === 0 ? 0 : stat.spend / impressions;
+}
+
 export function rankAdPerformance(
   products: Product[],
   ads: AdPerformance[],

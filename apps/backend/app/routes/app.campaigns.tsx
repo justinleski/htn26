@@ -32,7 +32,7 @@ export default function CampaignsPage() {
       <s-section heading="Generate">
         <s-paragraph>
           {data.hasEvidence
-            ? "Evidence is in Postgres, but the OpenAI analyze / generate / claim-check stages are not wired yet."
+            ? "Evidence is in Postgres, but the analyze / generate / claim-check stages are not wired yet."
             : "Import labelled ads and reviews on the dashboard before generating."}
         </s-paragraph>
         <s-button disabled variant="primary">

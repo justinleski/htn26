@@ -145,7 +145,7 @@ export default function Dashboard() {
       </s-section>
 
       {working.map((finding) => (
-        <s-section key={finding.title} heading="What's working">
+        <s-section key={`${finding.title}-${finding.supportingSourceIds.join(",")}`} heading="What's working">
           <s-paragraph>
             Observation. {finding.title}. {finding.observation}
           </s-paragraph>
@@ -161,7 +161,7 @@ export default function Dashboard() {
       ))}
 
       {weaker.map((finding) => (
-        <s-section key={finding.title} heading="What's not working as well">
+        <s-section key={`${finding.title}-${finding.supportingSourceIds.join(",")}`} heading="What's not working as well">
           <s-paragraph>
             Observation. {finding.title}. {finding.observation}
           </s-paragraph>
@@ -177,7 +177,7 @@ export default function Dashboard() {
       ))}
 
       {insufficient.map((finding) => (
-        <s-section key={finding.title} heading="What's working">
+        <s-section key={`${finding.title}-${finding.supportingSourceIds.join(",")}`} heading="What's working">
           <s-banner heading={finding.title} tone="info">
             {finding.observation}
           </s-banner>
@@ -192,7 +192,7 @@ export default function Dashboard() {
           </s-paragraph>
           <s-unordered-list>
             {comparisonThemes.map((theme) => (
-              <s-list-item key={theme.theme}>
+              <s-list-item key={`${theme.comparisonKey}-${theme.theme}`}>
                 {theme.label}: {theme.adCount} ads, {theme.reviewCount} reviews,
                 CTR {theme.ctr}, conversion {theme.conversionRate}, ROAS{" "}
                 {theme.roas}
@@ -272,7 +272,7 @@ export default function Dashboard() {
 
       <s-section heading="Generate campaign">
         <s-paragraph>
-          Generation needs the OpenAI analyze → generate → claim-check workflow.
+          Generation needs the analyze → generate → claim-check workflow.
           That stage is not wired yet, so this stays disabled even if evidence
           is present.
         </s-paragraph>

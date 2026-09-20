@@ -39,6 +39,7 @@ export function formatRoas(metric: MetricResult): string {
 }
 
 export interface ThemePerformance {
+  comparisonKey: string;
   theme: MessagingTheme;
   label: string;
   adCount: number;
@@ -80,7 +81,7 @@ function emptyTotals() {
   return { impressions: 0, clicks: 0, purchases: 0, spend: 0, attributedRevenue: 0 };
 }
 
-export function summarizeThemes(options: {
+function summarizeComparableThemes(options: {
   ads: AdPerformance[];
   reviews: Review[];
 }): ThemePerformance[] {
@@ -108,6 +109,7 @@ export function summarizeThemes(options: {
       const primary = groups[0];
       const totals = primary?.totals ?? emptyTotals();
       return {
+        comparisonKey: ads[0] ? comparisonKey(ads[0]) : "reviews-only",
         theme,
         label: THEME_LABEL[theme],
         adCount: ads.length,
@@ -129,11 +131,11 @@ function metricAtLeastAsStrong(left: MetricResult, right: MetricResult): boolean
   return left.value >= right.value;
 }
 
-export function buildDashboardFindings(options: {
+function buildComparableFindings(options: {
   ads: AdPerformance[];
   reviews: Review[];
 }): { findings: DashboardFinding[]; themes: ThemePerformance[] } {
-  const themes = summarizeThemes(options);
+  const themes = summarizeComparableThemes(options);
   const waterproof = themes.find((theme) => theme.theme === "waterproof");
   const style = themes.find((theme) => theme.theme === "style");
   const attribution = options.ads.some((ad) => ad.attribution === "demo")
@@ -167,7 +169,10 @@ export function buildDashboardFindings(options: {
   );
   const roasLead = metricAtLeastAsStrong(waterproof.metrics.roas, style.metrics.roas);
   const waterproofLeads =
-    ctrLead === true && convLead === true && roasLead === true;
+    ctrLead === true && convLead === true && roasLead === true &&
+    waterproof.metrics.ctr.value! > style.metrics.ctr.value! &&
+    waterproof.metrics.conversionRate.value! > style.metrics.conversionRate.value! &&
+    waterproof.metrics.roas.value! > style.metrics.roas.value!;
 
   const reviewNote =
     waterproof.reviewCount > style.reviewCount
@@ -182,7 +187,7 @@ export function buildDashboardFindings(options: {
     kind: "working",
     title: waterproofLeads
       ? "Waterproof messaging is outperforming style-first ads"
-      : "Waterproof and style-first ads differ on some metrics",
+      : "Waterproof and style-first performance comparison",
     observation: waterproofLeads
       ? `${comparison} In this period, stay-dry messaging has the stronger CTR, conversion, and ROAS.${reviewNote}`
       : `${comparison}${reviewNote} Compare the metric columns rather than treating one theme as universally better.`,
@@ -204,7 +209,7 @@ export function buildDashboardFindings(options: {
       ? "Style-first ads converted less well in this period"
       : "Style-first ads are not uniformly weaker",
     observation: waterproofLeads
-      ? `Style-first ads used similar spend and impressions in this labelled period, but fewer clicks, purchases, and less attributed revenue than stay-dry ads. Treat this as a hypothesis for the next campaign, not a causal claim.`
+      ? `Style-first ads had lower CTR, conversion (purchases/clicks), and ROAS in this period. Treat this as a hypothesis for the next campaign, not a causal claim.`
       : `Style-first ads do not trail stay-dry ads on every metric in this period. Check CTR (clicks/impressions), conversion (purchases/clicks), and ROAS separately.`,
     supportingSourceIds: style.sourceIds,
     observedMetrics: {
@@ -216,4 +221,57 @@ export function buildDashboardFindings(options: {
   };
 
   return { themes, findings: [working, weaker] };
+}
+
+function comparisonKey(ad: AdPerformance): string {
+  return JSON.stringify([
+    ad.merchantId, ad.productId, ad.currency,
+    ad.periodStart, ad.periodEnd, ad.attribution,
+  ]);
+}
+
+/** Compare the same product, currency, reporting period, and attribution only. */
+export function buildDashboardFindings(options: {
+  ads: AdPerformance[];
+  reviews: Review[];
+}): { findings: DashboardFinding[]; themes: ThemePerformance[] } {
+  if (options.ads.length === 0) return buildComparableFindings(options);
+
+  const groups = new Map<string, AdPerformance[]>();
+  for (const ad of options.ads) {
+    const key = comparisonKey(ad);
+    const group = groups.get(key) ?? [];
+    group.push(ad);
+    groups.set(key, group);
+  }
+
+  const findings: DashboardFinding[] = [];
+  const themes: ThemePerformance[] = [];
+  for (const ads of groups.values()) {
+    const first = ads[0]!;
+    const reviews = options.reviews.filter((review) =>
+      review.merchantId === first.merchantId &&
+      review.productId === first.productId &&
+      review.attribution === first.attribution,
+    );
+    const result = buildComparableFindings({ ads, reviews });
+    const period = `${first.currency}, ${first.periodStart.slice(0, 10)} to ${first.periodEnd.slice(0, 10)}`;
+    themes.push(...result.themes.map((theme) => ({
+      ...theme,
+      comparisonKey: comparisonKey(first),
+      label: `${theme.label} (${period})`,
+    })));
+    findings.push(...result.findings.map((finding) => ({
+      ...finding,
+      observation: `${period}. ${finding.observation}`,
+    })));
+  }
+  return { findings, themes };
+}
+
+export function summarizeThemes(options: {
+  ads: AdPerformance[];
+  reviews: Review[];
+}): ThemePerformance[] {
+  return buildDashboardFindings(options).themes;
 }

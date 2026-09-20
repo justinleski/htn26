@@ -1,29 +1,76 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { DataState } from "@/components/DataState";
 import { StoreConnectionProvider, useStoreConnection } from "@/contexts/StoreConnectionContext";
 
+const MotionNavLink = motion.create(NavLink);
+
+const NAV_ITEMS = [
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/insights", label: "Insights" },
+  { to: "/campaign", label: "Campaigns" },
+  { to: "/creative-testing", label: "Creative demo" },
+];
+
 function Header() {
-  const { connected } = useStoreConnection();
+  const { connected, logout } = useStoreConnection();
+  const [signingOut, setSigningOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function signOut() {
+    setSigningOut(true);
+    setError(null);
+    try { await logout(); }
+    catch { setError("Sign-out failed. Please try again."); }
+    finally { setSigningOut(false); }
+  }
 
   return (
-    <header className="border-b border-white/5">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link to={connected ? "/dashboard" : "/"} className="text-sm font-semibold tracking-tight">
-          Marketing Copilot
-        </Link>
+    <header className="border-b border-[var(--color-ink-on-dark)]/10 bg-[var(--color-bg-alt)]">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-4">
+        <motion.div whileTap={{ scale: 0.96 }} className="inline-block">
+          <Link
+            to={connected ? "/dashboard" : "/"}
+            className="font-display text-sm font-semibold tracking-tight"
+          >
+            Marketing Copilot
+          </Link>
+        </motion.div>
         {connected && (
-          <nav className="flex items-center gap-5 text-sm text-[var(--color-muted)]">
-            <Link to="/dashboard" className="hover:text-[var(--color-fg)]">
-              Dashboard
-            </Link>
-            <Link to="/insights" className="hover:text-[var(--color-fg)]">
-              Insights
-            </Link>
-            <Link to="/creative-testing" className="hover:text-[var(--color-fg)]">
-              Creative testing
-            </Link>
+          <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-5 text-sm text-[var(--color-ink-on-dark)]/60">
+            {NAV_ITEMS.map((item) => (
+              <MotionNavLink
+                key={item.to}
+                to={item.to}
+                whileTap={{ scale: 0.94 }}
+                className={({ isActive }) =>
+                  `relative py-1 transition-colors ${
+                    isActive
+                      ? "font-medium text-[var(--color-ink-on-dark)]"
+                      : "hover:text-[var(--color-ink-on-dark)]"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {item.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-underline"
+                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                        className="absolute right-0 -bottom-1 left-0 h-0.5 rounded-full bg-[var(--color-mark)]"
+                      />
+                    )}
+                  </>
+                )}
+              </MotionNavLink>
+            ))}
+            <button type="button" disabled={signingOut} onClick={() => void signOut()} className="hover:text-[var(--color-ink)] disabled:opacity-60">{signingOut ? "Signing out…" : "Sign out"}</button>
           </nav>
         )}
       </div>
+      {error ? <p role="alert" className="mx-auto max-w-5xl px-6 pb-3 text-sm text-[var(--color-flag)]">{error}</p> : null}
     </header>
   );
 }
@@ -31,10 +78,15 @@ function Header() {
 export function RootLayout() {
   return (
     <StoreConnectionProvider>
-      <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-fg)]">
+      <div className="grid-paper min-h-dvh text-[var(--color-ink-on-dark)]">
         <Header />
-        <Outlet />
+        <SessionContent />
       </div>
     </StoreConnectionProvider>
   );
+}
+
+function SessionContent() {
+  const { loading, error } = useStoreConnection();
+  return loading || error ? <DataState loading={loading} error={error} retry={() => window.location.reload()} /> : <Outlet />;
 }

@@ -1,81 +1,96 @@
-# Backend — Marketing Copilot (Shopify React Router)
+# Backend — Marketing Copilot
 
-Shopify embedded app: auth/session, Postgres (Prisma), Zod-validated imports, Shopify product sync, metric aggregation, merchant-scoped Elastic indexing, Google Analytics OAuth seams, and Sentry monitoring.
+The standalone app in `apps/frontend` uses the backend's Shopify OAuth session,
+Postgres data, imports, dashboard metrics, and Backboard campaign generation.
+The older `/app` Shopify routes remain in the repository; the main interface is `/`.
 
-## Run
+## Run the complete standalone app
 
-From repo root:
+From the repository root:
 
 ```bash
 npm install
-cp apps/backend/.env.example apps/backend/.env
-# fill SHOPIFY_*, DATABASE_URL (use Railway DATABASE_PUBLIC_URL locally, not *.railway.internal), etc.
-
-npm run setup:backend   # prisma generate + migrate
-npm run dev:backend     # shopify app dev (needs Partner app + CLI login)
+# Copy apps/backend/.env.example to apps/backend/.env and fill credentials.
+npm run setup:backend
+npm run build
+npm run start -w @htn26/backend
 ```
 
-Useful without full Shopify CLI:
+The backend serves both the built frontend and `/api` on port 3000 by default.
+Set `SHOPIFY_APP_URL` to the public HTTPS origin that forwards to this server.
+In Shopify app configuration, use that same application URL, disable embedded
+mode, and allow the exact redirect URL `<SHOPIFY_APP_URL>/api/auth/callback`.
+`shopify.app.toml` contains localhost defaults; `shopify app dev` can update the
+URLs for a development tunnel. Apply the configuration to your Shopify app before
+attempting merchant sign-in. Building locally does not register callback URLs.
+
+For Shopify CLI development, first build the frontend, then run
+the following from `apps/backend` (the explicit path is needed in this monorepo):
 
 ```bash
-npm run check:health -w @htn26/backend   # schemas + env/elastic/sentry status
-npm run typecheck -w @htn26/backend
-npm run dev:rr -w @htn26/backend         # react-router only (no tunnel)
+npm run dev -- --path . --store htn26-rain-jackets.myshopify.com --use-localhost --localhost-port 3458
 ```
 
-Public health JSON: `GET /health` (no Shopify session).
+Open `https://localhost:3458`. Local HTTPS was used for the live test because Chrome
+blocked the temporary Cloudflare hostname. Shopify CLI generates a local certificate
+on first use. Localhost mode cannot receive Shopify webhooks; use a public HTTPS
+origin when verifying webhooks or deploying. Rebuild the frontend after edits to
+refresh the served UI.
+For frontend hot reload, run `npm run dev:frontend` alongside
+`npm run dev:rr -w @htn26/backend`, and set `FRONTEND_URL=http://localhost:5173`.
+Vite proxies `/api` to port 3000. Prefer the single HTTPS origin for OAuth testing;
+Shopify's session cookies are secure and the callback returns to SHOPIFY_APP_URL.
 
-## Env still empty until you fill them
+## Environment
 
-| Variable | Needed for |
-|----------|------------|
-| `SHOPIFY_API_KEY` / `SHOPIFY_API_SECRET` | Admin embed + GraphQL |
-| `DATABASE_URL` | Prisma Session, integrations, and merchant data |
-| `SESSION_SECRET` | App session hardening |
-| `ELASTIC_URL` / `ELASTIC_API_KEY` | Search client health |
-| `SENTRY_DSN` / `VITE_SENTRY_DSN` | Server errors/traces and browser Session Replay |
-| `GOOGLE_CLIENT_ID` / `SECRET` / `REDIRECT_URI` | Future GA Connect (app-level only) |
-| `OPENAI_API_KEY` | Dev 3 AI lane |
+| Variable | Purpose |
+|----------|---------|
+| `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `SHOPIFY_APP_URL`, `SCOPES` | Shopify OAuth and product sync |
+| `DATABASE_URL` | Session, merchant data, campaigns, generation runs |
+| `BACKBOARD_API_KEY` | Campaign generation; see [provider contract](GENERATION.md) |
+| `BACKBOARD_PROVIDER`, `BACKBOARD_MODEL` | Optional model overrides |
+| `ELASTIC_URL`, `ELASTIC_API_KEY` | Optional evidence indexing after imports/sync |
+| `SENTRY_DSN` | Optional server errors and traces |
+| `FRONTEND_URL` | Optional Vite origin for development mutations |
 
-Never commit `.env`. Merchants never paste GA API keys — OAuth tokens go on `MerchantIntegration`.
+Never commit `.env`. Use Railway's public database URL for local development,
+not a private `*.railway.internal` hostname. Google Analytics integration remains
+deferred. Reviews and historical ad performance use CSV/JSON imports; Shopify
+connection does not automatically connect ad accounts. Creative Testing is labelled
+as an illustrative demo.
 
-The Health screen can send a deliberate Sentry test error. Product sync,
-demo import, and dashboard loading emit server spans when Sentry is configured;
-browser tracing and privacy-masked Session Replay use `VITE_SENTRY_DSN`.
+## Verification
 
-## Layout
-
-```
-app/
-  shopify.server.ts
-  db.server.ts
-  lib/
-    schemas.ts              # loose domain Zod
-    env.server.ts
-    elastic.server.ts
-    sentry.server.ts
-    shopify/                # GraphQL product helpers
-    ga/                     # OAuth URL + map stubs
-    integrations/types.ts
-  routes/
-    app._index.tsx          # Dashboard stub
-    app.import.tsx
-    app.campaigns.tsx
-    app.settings.tsx        # Connect GA (disabled)
-    app.health.tsx
-    health.tsx              # public probe
-prisma/schema.prisma        # Session, MerchantIntegration, Product, Review, Campaign, …
-src/                        # data pipeline (import, sync, metrics, elasticsearch)
-test/                       # pipeline unit tests
-.context/design.yaml
+```bash
+npm test
+npm run typecheck
+npm run check:frontend-structure
+npm run check:health -w @htn26/backend
+npm run check:standalone -w @htn26/backend
 ```
 
-## MCP (team)
+The last command creates and removes its own temporary records in the configured
+Postgres database, with mocked Shopify token exchange and scripted generation.
+Live Shopify consent/product sync and a real Backboard response are separate
+acceptance checks. Public `GET /health` reports service health.
 
-Prefer user/global MCP config (secrets not in git):
+Run `npm run check:backboard -w @htn26/backend` for an opt-in live Backboard check
+using synthetic evidence. This makes billable provider calls and does not write
+campaigns to Postgres. GPT-4o mini through Backboard passed all three stages.
 
-- Railway: https://railway.com/mcp
-- Sentry: https://mcp.sentry.dev/mcp
-- Elasticsearch: `@elastic/mcp-server-elasticsearch` once cluster exists
+Live verification on `htn26-rain-jackets.myshopify.com` completed Shopify OAuth and
+synced 17 catalog products. A campaign generated from the existing labelled demo
+evidence was saved to Postgres. One model response failed validation; a manual retry
+succeeded, so model output is still subject to validation and occasional retries.
 
-Railway Shared Variables for deployed `DATABASE_URL`, Elastic, Sentry, Shopify secrets. Full Railway project create is optional until accounts exist.
+## Main routes
+
+- `/api/auth/start`, `/api/auth/callback`, `/api/session`, `/api/logout`: OAuth/session
+- `/api/dashboard`: scoped products, reviews, historical ads, metrics, findings
+- `/api/sync`: Shopify catalog sync
+- `/api/import` and `/api/import/demo`: validated imports and labelled examples
+- `/api/generate`: evidence analysis, draft generation, claim review, save
+- `/api/campaigns` and `/api/campaigns/:id`: saved campaign history/reopen
+
+Mutation endpoints require POST and the configured Origin. Merchant identity
+comes from the signed session, and Shopify tokens never enter frontend storage.
