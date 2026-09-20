@@ -1,10 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #0f1419;
-  --color-fg: #f2f5f7;
-  --color-muted: #9aa7b2;
-  --color-accent: #5eead4;
+  /* Blue / black / white redesign — bright white page over a faint blue
+     grid, near-black ink, one loud blue accent. Sharp edges over soft
+     shadows. --color-ink-on-dark equals --color-ink (there's no more dark
+     "table" background) — kept as its own token so components that
+     reference it don't need touching if that ever changes again. */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f4f6fb;
+  --color-paper: #ffffff;
+  --color-paper-dim: #eef1f7;
+  --color-ink: #0a0e17;
+  --color-ink-muted: #5b6472;
+  --color-ink-on-dark: #0a0e17;
+
+  --color-instagram: #f0705e;
+  --color-meta: #4c6ef5;
+  --color-google: #f0b84c;
+  --color-tiktok: #2bc4b3;
+
+  /* --color-mark: the "this one won" annotation, the primary action color,
+     and the one accent color in the whole palette. --color-flag: the
+     "needs attention" annotation. */
+  --color-mark: #1d4ed8;
+  --color-mark-hover: #1739ad;
+  --color-mark-tint: rgba(29, 78, 216, 0.08);
+  --color-flag: #dc2626;
+
+  --grid-line: rgba(29, 78, 216, 0.07);
+  --grid-size: 40px;
+  --border-ink: rgba(10, 14, 23, 0.14);
+  --shadow-paper: 0 1px 2px rgba(10, 14, 23, 0.06);
+
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
 *,
@@ -21,8 +51,35 @@ body,
 
 body {
   margin: 0;
-  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-  background: var(--color-bg);
-  color: var(--color-fg);
+  font-family: var(--font-body);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-bg);
+}
+
+.grid-paper {
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.paper {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  border: 1px solid var(--border-ink);
+  box-shadow: var(--shadow-paper);
 }

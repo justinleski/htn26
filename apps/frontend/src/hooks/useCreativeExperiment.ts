@@ -26,6 +26,7 @@ function buildFinalAd(
   return {
     caption: captionVariant.caption,
     mediaAssetUrl: mediaVariant.mediaAssetUrl,
+    mediaType: mediaVariant.mediaType,
     hashtags: hashtagsVariant.hashtags,
   };
 }

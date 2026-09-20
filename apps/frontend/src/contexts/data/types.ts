@@ -103,6 +103,8 @@ export interface CampaignVariant {
   hook: string;
   caption: string;
   hashtags: string[];
+  /** Point-form direction for what the creator should actually shoot/put in the image or video. */
+  mediaRecommendations: string[];
 }
 
 // Sequential creative testing: isolate one creative variable per round,
@@ -148,6 +150,7 @@ export interface CreativeExperiment {
   finalAd?: {
     caption: string;
     mediaAssetUrl: string;
+    mediaType: Variant["mediaType"];
     hashtags: string[];
   };
 }

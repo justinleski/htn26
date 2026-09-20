@@ -1,29 +1,59 @@
 import { motion } from "framer-motion";
+import { ConversionComparisonBars } from "@/components/ConversionComparisonBars";
+import type { ThemeComparison } from "@/contexts/data/metrics";
 import type { Insight } from "@/contexts/data/types";
 
-export function InsightCard({ insight }: { insight: Insight }) {
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+export function InsightCard({
+  insight,
+  comparison,
+}: {
+  insight: Insight;
+  comparison: ThemeComparison;
+}) {
+  const aWins = comparison.avgConversionA >= comparison.avgConversionB;
+  const bars = [
+    {
+      label: capitalize(comparison.themeA),
+      value: comparison.avgConversionA,
+      isWinner: aWins,
+    },
+    {
+      label: capitalize(comparison.themeB),
+      value: comparison.avgConversionB,
+      isWinner: !aWins,
+    },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="rounded-2xl border border-white/10 bg-gradient-to-br from-[var(--color-accent)]/15 to-transparent p-6 sm:p-8"
+      className="paper rounded-2xl p-6 sm:p-8"
     >
-      <p className="mb-2 text-xs font-medium tracking-wide text-[var(--color-accent)] uppercase">
+      <p className="mb-2 text-xs font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">
         Top insight
       </p>
-      <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-        {insight.headline}
-      </h2>
-      <p className="mt-3 max-w-2xl text-[var(--color-muted)]">
-        {insight.explanation}
-      </p>
-      <div className="mt-5 inline-flex items-center rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-sm font-medium">
-        {insight.supportingStat}
+
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <p className="font-display text-5xl leading-none font-semibold">
+          {comparison.multiplier.toFixed(1)}×
+        </p>
+        <p className="text-sm text-[var(--color-ink-muted)]">
+          higher conversion rate — {bars[0].label} vs {bars[1].label} messaging
+        </p>
       </div>
-      <p className="mt-4 text-xs text-[var(--color-muted)]">
-        {insight.limitations}
-      </p>
+
+      <div className="mt-6 max-w-md">
+        <ConversionComparisonBars bars={bars} />
+      </div>
+
+      <p className="mt-6 max-w-2xl text-sm text-[var(--color-ink-muted)]">{insight.explanation}</p>
+      <p className="mt-4 text-xs text-[var(--color-ink-muted)]">{insight.limitations}</p>
     </motion.div>
   );
 }

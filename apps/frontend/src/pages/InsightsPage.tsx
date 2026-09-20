@@ -6,7 +6,8 @@ import { PerformanceRankList } from "@/components/PerformanceRankList";
 import { StoreSummaryBar } from "@/components/StoreSummaryBar";
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
 import { useTopInsight } from "@/hooks/useTopInsight";
-import { rankAdPerformance } from "@/contexts/data/metrics";
+import { TOP_INSIGHT_THEMES } from "@/contexts/data/insightService";
+import { compareMessagingThemes, rankAdPerformance } from "@/contexts/data/metrics";
 
 export function InsightsPage() {
   const { connected, ready, storeName } = useStoreConnection();
@@ -29,6 +30,11 @@ export function InsightsPage() {
     [ads, products],
   );
 
+  const comparison = useMemo(
+    () => compareMessagingThemes(ads, ...TOP_INSIGHT_THEMES),
+    [ads],
+  );
+
   const summary = useMemo(() => {
     const avg = (fn: (item: (typeof rankedItems)[number]) => number) =>
       rankedItems.length === 0
@@ -46,7 +52,7 @@ export function InsightsPage() {
   if (!ready) {
     return (
       <main className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
-        <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+        <div className="paper h-40 animate-pulse rounded-xl opacity-50" />
       </main>
     );
   }
@@ -75,7 +81,7 @@ export function InsightsPage() {
             type="button"
             onClick={() => void sync()}
             disabled={busy}
-            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+            className="rounded-full border border-[var(--color-mark)]/40 px-4 py-2 text-sm font-medium text-[var(--color-mark)] transition-colors hover:bg-[var(--color-mark-tint)] disabled:opacity-60"
           >
             {action === "sync" ? "Syncing products..." : "Sync products"}
           </button>
@@ -83,14 +89,14 @@ export function InsightsPage() {
             type="button"
             onClick={() => void importDemo()}
             disabled={busy}
-            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+            className="rounded-full border border-[var(--color-mark)]/40 px-4 py-2 text-sm font-medium text-[var(--color-mark)] transition-colors hover:bg-[var(--color-mark-tint)] disabled:opacity-60"
           >
             {action === "import-demo" ? "Loading labelled demo..." : "Load labelled demo"}
           </button>
         </div>
 
         {notice && (
-          <p className="text-sm text-[var(--color-muted)]">{notice}</p>
+          <p className="text-sm text-[var(--color-ink-on-dark)]/70">{notice}</p>
         )}
 
         {error && (
@@ -100,39 +106,40 @@ export function InsightsPage() {
         )}
 
         {loading ? (
-          <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+          <div className="paper h-40 animate-pulse rounded-xl opacity-50" />
         ) : insight ? (
-          <InsightCard insight={insight} />
+          <InsightCard insight={insight} comparison={comparison} />
         ) : (
-          <p className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-6 text-sm text-[var(--color-muted)]">
+          <p className="paper rounded-2xl px-5 py-6 text-sm text-[var(--color-ink-muted)]">
             No findings yet. Sync products or load the labelled demo to fill this dashboard.
           </p>
         )}
 
         <div>
-          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-muted)] uppercase">
+          <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-ink-on-dark)]/60 uppercase">
             Best-performing products & ads
           </h3>
           {busy && rankedItems.length === 0 ? (
-            <div className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+            <div className="paper h-32 animate-pulse rounded-xl opacity-50" />
           ) : (
             <PerformanceRankList items={rankedItems} />
           )}
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
+          <motion.button
             onClick={handleGenerateCampaign}
             disabled={busy || !insight}
-            className="rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black transition-opacity disabled:opacity-60"
+            whileTap={{ scale: 0.96 }}
+            className="rounded-full bg-[var(--color-mark)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-mark-hover)] disabled:opacity-60"
           >
-            Generate campaign from this insight
-          </button>
+            Generate campaign
+          </motion.button>
           <Link
             to="/creative-testing"
-            className="rounded-lg border border-white/15 px-5 py-3 text-sm font-medium hover:bg-white/5"
+            className="rounded-full border border-[var(--color-mark)]/40 px-6 py-3 text-sm font-semibold text-[var(--color-mark)] transition-colors hover:bg-[var(--color-mark-tint)]"
           >
-            See how we found this: creative testing funnel →
+            View creative tests
           </Link>
         </div>
       </motion.div>

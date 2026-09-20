@@ -4,7 +4,7 @@ import type { AdPerformance, Product, Review } from "./types";
 // target for real Shopify (products), review-platform (reviews), and
 // Google/Meta Ads (adPerformance) API responses.
 
-export const storeName = "Summit Outfitters (Demo Store)";
+export const storeName = "Summit Outfitters";
 
 export const products: Product[] = [
   {

@@ -5,6 +5,11 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// The two messaging themes the top insight compares. Exported so the page
+// can run the same pure comparison (for the chart) without re-guessing which
+// themes this insight is about.
+export const TOP_INSIGHT_THEMES = ["waterproof", "style"] as const;
+
 /**
  * Analyzes product/review/ad evidence and returns the single top insight.
  *
@@ -20,7 +25,7 @@ export async function generateTopInsight(
 ): Promise<Insight> {
   await delay(900);
 
-  const comparison = compareMessagingThemes(evidence.ads, "waterproof", "style");
+  const comparison = compareMessagingThemes(evidence.ads, ...TOP_INSIGHT_THEMES);
   const multiplier = comparison.multiplier;
 
   return {

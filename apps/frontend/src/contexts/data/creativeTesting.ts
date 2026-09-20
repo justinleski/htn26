@@ -11,3 +11,19 @@ export function pickRoundWinner(variants: Variant[]): Variant | null {
     variant.conversionRate > best.conversionRate ? variant : best,
   );
 }
+
+export type CreativeSortColumn = "ctr" | "conversionRate" | "ctaClicks";
+
+/**
+ * Reorders variants for display only, by whichever column header was
+ * clicked — the winner (by conversion rate, from pickRoundWinner) stays
+ * tagged wherever it lands rather than being pinned to a fixed position.
+ */
+export function sortVariantsByMetric(
+  variants: Variant[],
+  column: CreativeSortColumn,
+  direction: "asc" | "desc" = "desc",
+): Variant[] {
+  const sorted = [...variants].sort((a, b) => a[column] - b[column]);
+  return direction === "desc" ? sorted.reverse() : sorted;
+}
