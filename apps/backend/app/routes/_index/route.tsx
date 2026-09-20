@@ -9,7 +9,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
 
   if (url.searchParams.get("shop")) {
-    throw redirect(`/app?${url.searchParams.toString()}`);
+    throw redirect(`/auth/copilot?${url.searchParams.toString()}`);
   }
 
   return { showForm: Boolean(login) };
@@ -23,8 +23,9 @@ export default function Index() {
       <div className={styles.content}>
         <h1 className={styles.heading}>Marketing Copilot</h1>
         <p className={styles.text}>
-          AI marketing insights for Shopify merchants — open from Shopify Admin
-          or log in with your shop domain.
+          AI marketing insights for Shopify merchants. Log in with your shop
+          domain to connect Shopify, then continue in the copilot UI. The
+          Polaris /app screens are debug-only.
         </p>
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">

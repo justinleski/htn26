@@ -6,22 +6,30 @@ import { PerformanceRankList } from "@/components/PerformanceRankList";
 import { StoreSummaryBar } from "@/components/StoreSummaryBar";
 import { useStoreConnection } from "@/contexts/StoreConnectionContext";
 import { useTopInsight } from "@/hooks/useTopInsight";
-import { adPerformance, products } from "@/contexts/data/mockData";
 import { rankAdPerformance } from "@/contexts/data/metrics";
 
 export function InsightsPage() {
-  const { connected, storeName } = useStoreConnection();
+  const { connected, ready, storeName } = useStoreConnection();
   const navigate = useNavigate();
-  const { insight, loading } = useTopInsight();
+  const {
+    insight,
+    products,
+    ads,
+    loading,
+    error,
+    notice,
+    action,
+    busy,
+    sync,
+    importDemo,
+  } = useTopInsight({ autoFillEmpty: true });
 
   const rankedItems = useMemo(
-    () => rankAdPerformance(products, adPerformance),
-    [],
+    () => rankAdPerformance(products, ads),
+    [ads, products],
   );
 
   const summary = useMemo(() => {
-    // Averaged across each ad's best-performing platform — a simple summary
-    // number, not a substitute for the per-platform breakdown in the table.
     const avg = (fn: (item: (typeof rankedItems)[number]) => number) =>
       rankedItems.length === 0
         ? 0
@@ -29,11 +37,19 @@ export function InsightsPage() {
 
     return {
       productCount: products.length,
-      adCount: adPerformance.length,
+      adCount: ads.length,
       avgCtr: avg((item) => item.ctr),
       avgConversionRate: avg((item) => item.conversionRate),
     };
-  }, [rankedItems]);
+  }, [ads.length, products.length, rankedItems]);
+
+  if (!ready) {
+    return (
+      <main className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
+        <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+      </main>
+    );
+  }
 
   if (!connected) {
     return <Navigate to="/" replace />;
@@ -54,23 +70,60 @@ export function InsightsPage() {
       >
         <StoreSummaryBar storeName={storeName} {...summary} />
 
-        {loading || !insight ? (
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => void sync()}
+            disabled={busy}
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+          >
+            {action === "sync" ? "Syncing products..." : "Sync products"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void importDemo()}
+            disabled={busy}
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+          >
+            {action === "import-demo" ? "Loading labelled demo..." : "Load labelled demo"}
+          </button>
+        </div>
+
+        {notice && (
+          <p className="text-sm text-[var(--color-muted)]">{notice}</p>
+        )}
+
+        {error && (
+          <p className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+            {error}
+          </p>
+        )}
+
+        {loading ? (
           <div className="h-40 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
-        ) : (
+        ) : insight ? (
           <InsightCard insight={insight} />
+        ) : (
+          <p className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-6 text-sm text-[var(--color-muted)]">
+            No findings yet. Sync products or load the labelled demo to fill this dashboard.
+          </p>
         )}
 
         <div>
           <h3 className="mb-3 text-sm font-medium tracking-wide text-[var(--color-muted)] uppercase">
             Best-performing products & ads
           </h3>
-          <PerformanceRankList items={rankedItems} />
+          {busy && rankedItems.length === 0 ? (
+            <div className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+          ) : (
+            <PerformanceRankList items={rankedItems} />
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleGenerateCampaign}
-            disabled={loading}
+            disabled={busy || !insight}
             className="rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-black transition-opacity disabled:opacity-60"
           >
             Generate campaign from this insight

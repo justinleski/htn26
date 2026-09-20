@@ -1,0 +1,21 @@
+# Intended Railway settings for the public API (documentation).
+# Railway Config-as-Code (railway.toml) is deprecated; dockerfilePath /
+# healthcheck were applied on the `api` service via Railway MCP.
+# Repo-root context — do not set rootDirectory to apps/backend
+# (npm workspaces lockfile lives at the repo root).
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.api"
+watchPatterns = [
+  "package.json",
+  "package-lock.json",
+  "Dockerfile.api",
+  "apps/backend/**",
+  "data/**",
+]
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
