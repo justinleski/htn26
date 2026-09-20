@@ -1,0 +1,36 @@
+{
+  "products": [
+    {
+      "id": "rain-jacket",
+      "merchantId": "merchant-1",
+      "shopifyId": "gid://shopify/Product/1",
+      "title": "Rain Jacket",
+      "description": "A waterproof shell built for commutes, travel, and sudden rain.",
+      "price": "189.00",
+      "currency": "CAD",
+      "attributes": {
+        "handle": "rain-jacket",
+        "vendor": "North Trail",
+        "productType": "Outerwear",
+        "tags": ["waterproof", "commute", "travel"]
+      },
+      "sourceUpdatedAt": "2026-08-31T00:00:00.000Z"
+    },
+    {
+      "id": "daypack",
+      "merchantId": "merchant-1",
+      "shopifyId": "gid://shopify/Product/2",
+      "title": "Daypack",
+      "description": "Weather-ready carry-all for everyday commuting and short trips.",
+      "price": "149.00",
+      "currency": "CAD",
+      "attributes": {
+        "handle": "daypack",
+        "vendor": "North Trail",
+        "productType": "Accessories",
+        "tags": ["commute", "city", "weather-ready"]
+      },
+      "sourceUpdatedAt": "2026-08-31T00:00:00.000Z"
+    }
+  ]
+}
