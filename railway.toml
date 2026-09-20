@@ -1,21 +1,8 @@
-# Intended Railway settings for the public API (documentation).
-# Railway Config-as-Code (railway.toml) is deprecated; dockerfilePath /
-# healthcheck were applied on the `api` service via Railway MCP.
-# Repo-root context — do not set rootDirectory to apps/backend
-# (npm workspaces lockfile lives at the repo root).
-
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.api"
-watchPatterns = [
-  "package.json",
-  "package-lock.json",
-  "Dockerfile.api",
-  "apps/backend/**",
-  "data/**",
-]
-
-[deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 300
-restartPolicyType = "ON_FAILURE"
+# Documentation only — do NOT put [build]/[deploy] here.
+# A root railway.toml applies to EVERY service sharing this repo, so a shared
+# Dockerfile.api entry would break the web service. Configure per-service in
+# Railway instead:
+#   api: builder=DOCKERFILE, dockerfilePath=Dockerfile.api, healthcheckPath=/health
+#   web: builder=DOCKERFILE, dockerfilePath=Dockerfile.web
+#        (or Railpack: build `npm run build -w @htn26/frontend`,
+#         start `npx serve@14.2.4 -s apps/frontend/dist -l tcp://0.0.0.0:$PORT`)

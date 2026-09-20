@@ -1,13 +1,3 @@
-# Intended Railway settings for the public Vite frontend (documentation).
-# Railway Config-as-Code is deprecated; dockerfilePath was applied on `web`
-# via Railway MCP. Repo-root context — do not set rootDirectory to apps/frontend.
-
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.web"
-watchPatterns = [
-  "package.json",
-  "package-lock.json",
-  "Dockerfile.web",
-  "apps/frontend/**",
-]
+# Documentation only for the web service. Prefer setting dockerfilePath /
+# build+start commands on the Railway `web` service directly (Config-as-Code
+# at the repo root applies to all services and is unsafe in this monorepo).
